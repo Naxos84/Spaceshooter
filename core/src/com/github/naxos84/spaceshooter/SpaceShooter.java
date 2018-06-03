@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.github.naxos84.spaceshooter.helper.MathHelper;
 
 public class SpaceShooter extends ApplicationAdapter {
 
@@ -68,7 +69,6 @@ public class SpaceShooter extends ApplicationAdapter {
 
         batch.end();
 
-
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             ship.x -= 100 * Gdx.graphics.getDeltaTime();
         }
@@ -84,6 +84,10 @@ public class SpaceShooter extends ApplicationAdapter {
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
+
+
+        ship.x = MathHelper.clamp(ship.x, 0, 800 - ship.width);
+        ship.y = MathHelper.clamp(ship.y, ship.height, 600);
 
     }
 
