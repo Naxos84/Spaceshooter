@@ -131,7 +131,7 @@ public class SpaceShooter extends ApplicationAdapter {
             quitGame();
         }
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) {
             spawnAsteroid();
         }
 
@@ -139,9 +139,9 @@ public class SpaceShooter extends ApplicationAdapter {
         ship.x = MathUtils.clamp(ship.x, 0, 800 - ship.width);
         ship.y = MathUtils.clamp(ship.y, ship.height, 600);
 
-//        if (TimeUtils.nanoTime() - lastAsteroidSpawn > 1000000000) {
-//            spawnAsteroid();
-//        }
+        if (TimeUtils.nanoTime() - lastAsteroidSpawn > 1000000000) {
+            spawnAsteroid();
+        }
 
         Iterator<Asteroid> asteroidsIterator = asteroids.iterator();
         while (asteroidsIterator.hasNext()) {
@@ -160,7 +160,7 @@ public class SpaceShooter extends ApplicationAdapter {
             if (laser.x > 800) {
                 lasersIterator.remove();
             }
-            while(asteroidsIterator.hasNext()) {
+            while (asteroidsIterator.hasNext()) {
                 Asteroid asteroid = asteroidsIterator.next();
                 if (laser.overlaps(asteroid)) {
                     asteroidsIterator.remove();
@@ -170,14 +170,13 @@ public class SpaceShooter extends ApplicationAdapter {
         }
 
         asteroidsIterator = asteroids.iterator();
-        while(asteroidsIterator.hasNext()) {
+        while (asteroidsIterator.hasNext()) {
             Rectangle asteroid = asteroidsIterator.next();
             if (asteroid.overlaps(ship)) {
                 asteroidsIterator.remove();
                 quitGame();
             }
         }
-
 
 
     }
