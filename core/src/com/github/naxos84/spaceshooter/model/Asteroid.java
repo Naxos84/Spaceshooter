@@ -1,19 +1,17 @@
-package com.github.naxos84.spaceshooter;
+package com.github.naxos84.spaceshooter.model;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Disposable;
 
-public class Asteroid extends Rectangle implements Disposable {
+public class Asteroid extends Rectangle {
 
     private int rotation;
-    private Texture texture;
     private TextureRegion textureRegion;
 
     public Asteroid(final Texture texture, final int rotation) {
-        this.texture = texture;
-        this.textureRegion = new TextureRegion(this.texture);
+        this.textureRegion = new TextureRegion(texture);
         this.rotation = rotation;
     }
 
@@ -23,10 +21,5 @@ public class Asteroid extends Rectangle implements Disposable {
 
     public int getRotation() {
         return rotation;
-    }
-
-    @Override
-    public void dispose() {
-        this.texture.dispose();
     }
 }
