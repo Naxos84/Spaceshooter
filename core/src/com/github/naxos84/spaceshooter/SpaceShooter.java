@@ -171,10 +171,8 @@ public class SpaceShooter extends ApplicationAdapter {
             asteroid.x -= 200 * Gdx.graphics.getDeltaTime();
             if (asteroid.x < 0) {
                 asteroidsIterator.remove();
-                continue;
             } else if (asteroid.overlaps(ship)) {
                 quitGame();
-                continue;
             }
 
         }
