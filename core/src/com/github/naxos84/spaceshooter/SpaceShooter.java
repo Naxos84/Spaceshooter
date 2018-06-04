@@ -5,11 +5,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
@@ -20,11 +22,9 @@ import java.util.Iterator;
 public class SpaceShooter extends ApplicationAdapter {
 
     private Texture shipImage;
-    private TextureRegion shipTexReg;
     private Rectangle ship;
     private Texture asteroidTex;
     private Texture laserImage;
-    private TextureRegion laserTexReg;
 
     private Sound shootSound;
     private Music backgroundMusic;
@@ -36,6 +36,14 @@ public class SpaceShooter extends ApplicationAdapter {
     private long lastAsteroidSpawn;
     private Array<Rectangle> lasers;
     private long lastLaserSpawn;
+
+    private ShapeRenderer sRenderer;
+
+    private final boolean debugMode;
+
+    public SpaceShooter(final boolean debug) {
+        debugMode = debug;
+    }
 
     private void spawnAsteroid() {
         Asteroid asteroid = new Asteroid(asteroidTex, MathUtils.random(360));
@@ -50,9 +58,9 @@ public class SpaceShooter extends ApplicationAdapter {
     private void spawnLaser() {
         Rectangle laser = new Rectangle();
         laser.x = ship.x + 64;
-        laser.y = ship.y - 64 / 2 + 5;
-        laser.width = 9;
-        laser.height = 27;
+        laser.y = ship.y + 64 / 2;
+        laser.width = 27;
+        laser.height = 9;
         lasers.add(laser);
         lastLaserSpawn = TimeUtils.nanoTime();
         shootSound.play();
@@ -61,12 +69,13 @@ public class SpaceShooter extends ApplicationAdapter {
 
     @Override
     public void create() {
+        if (debugMode) {
+            sRenderer = new ShapeRenderer();
+        }
         Gdx.app.log("SpaceShooter", "creating things.");
         shipImage = new Texture("images/player/playerShip1_blue.png");
-        shipTexReg = new TextureRegion(shipImage);
         asteroidTex = new Texture("images/meteors/meteorBrown_big1.png");
         laserImage = new Texture("images/lasers/laserBlue01.png");
-        laserTexReg = new TextureRegion(laserImage);
         shootSound = Gdx.audio.newSound(Gdx.files.internal("audio/laser5.ogg"));
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/DST-DustLoop.mp3"));
 
@@ -99,14 +108,27 @@ public class SpaceShooter extends ApplicationAdapter {
 
         camera.update();
 
+        if (debugMode) {
+            sRenderer.begin(ShapeRenderer.ShapeType.Line);
+            sRenderer.setColor(Color.RED);
+            sRenderer.rect(ship.x, ship.y, ship.width, ship.height);
+            for (Asteroid asteroid : asteroids) {
+                sRenderer.rect(asteroid.x, asteroid.y, asteroid.width, asteroid.height);
+            }
+            for (Rectangle laser : lasers) {
+                sRenderer.rect(laser.x, laser.y, laser.width, laser.height);
+            }
+            sRenderer.end();
+        }
+
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(shipTexReg, ship.x, ship.y, 0, 0, ship.width, ship.height, 1, 1, 270);
+        batch.draw(shipImage, ship.x, ship.y, ship.width, ship.height);
         for (Asteroid asteroid : asteroids) {
-            batch.draw(asteroid.getTextureRegion(), asteroid.x, asteroid.y, 0, 0, asteroid.width, asteroid.height, 1, 1, asteroid.getRotation());
+            batch.draw(asteroid.getTextureRegion(), asteroid.x, asteroid.y, asteroid.width / 2, asteroid.height / 2, asteroid.width, asteroid.height, 1, 1, asteroid.getRotation());
         }
         for (Rectangle laser : lasers) {
-            batch.draw(laserTexReg, laser.x, laser.y, 0, 0, laser.width, laser.height, 1, 1, 270);
+            batch.draw(laserImage, laser.x, laser.y, laser.width, laser.height);
         }
         batch.end();
 
