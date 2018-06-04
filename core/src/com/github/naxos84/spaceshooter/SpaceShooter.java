@@ -171,7 +171,12 @@ public class SpaceShooter extends ApplicationAdapter {
             asteroid.x -= 200 * Gdx.graphics.getDeltaTime();
             if (asteroid.x < 0) {
                 asteroidsIterator.remove();
+                continue;
+            } else if (asteroid.overlaps(ship)) {
+                quitGame();
+                continue;
             }
+
         }
 
         Iterator<Rectangle> lasersIterator = lasers.iterator();
@@ -190,16 +195,6 @@ public class SpaceShooter extends ApplicationAdapter {
                 }
             }
         }
-
-        asteroidsIterator = asteroids.iterator();
-        while (asteroidsIterator.hasNext()) {
-            Rectangle asteroid = asteroidsIterator.next();
-            if (asteroid.overlaps(ship)) {
-                asteroidsIterator.remove();
-                quitGame();
-            }
-        }
-
 
     }
 
