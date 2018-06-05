@@ -1,10 +1,13 @@
 package com.github.naxos84.spaceshooter.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.github.naxos84.spaceshooter.SpaceShooter;
+
+import java.util.Locale;
 
 public class MainMenuScreen implements Screen {
 
@@ -35,13 +38,21 @@ public class MainMenuScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Welcome to Spaceshooter!!! ", 100, 150);
-        game.font.draw(game.batch, "Tap anywhere to begin!", 100, 100);
+        game.font.draw(game.batch, game.bundle.get("KEY_WELCOME"), 100, 150);
+        game.font.draw(game.batch, game.bundle.get("KEY_CLICK_TO_BEGIN"), 100, 100);
         game.batch.end();
 
         if (Gdx.input.isTouched()) {
             game.setScreen(new GameScreen(game, debugMode));
             dispose();
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.G)) {
+            game.setLocale(Locale.GERMANY);
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+            game.setLocale(Locale.getDefault());
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+            game.setLocale(Locale.UK);
         }
     }
 
