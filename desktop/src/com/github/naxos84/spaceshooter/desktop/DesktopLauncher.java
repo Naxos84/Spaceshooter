@@ -1,5 +1,6 @@
 package com.github.naxos84.spaceshooter.desktop;
 
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.github.naxos84.spaceshooter.SpaceShooter;
@@ -14,6 +15,8 @@ public class DesktopLauncher {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.height = 600;
         config.width = 800;
+        //config.preferencesDirectory = "spaceshooter/preferences";
+        //config.preferencesFileType = Files.FileType.External;
 
         new LwjglApplication(new SpaceShooter(debugMode), config);
     }

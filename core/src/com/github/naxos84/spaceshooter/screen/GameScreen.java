@@ -68,10 +68,8 @@ public class GameScreen implements Screen {
         ship.height = 64;
 
         asteroids = new Array<Asteroid>();
-        spawnAsteroid();
 
         lasers = new Array<Rectangle>();
-        spawnLaser();
     }
 
     private void spawnAsteroid() {
