@@ -165,8 +165,7 @@ public class GameScreen implements Screen {
             spawnAsteroid();
         }
 
-        Iterator<Asteroid> asteroidsIterator = asteroids.iterator();
-        while (asteroidsIterator.hasNext()) {
+        for (Iterator<Asteroid> asteroidsIterator = asteroids.iterator(); asteroidsIterator.hasNext(); ) {
             Asteroid asteroid = asteroidsIterator.next();
             asteroid.x -= debugMode ? 1 : 200 * delta;;
             if (asteroid.x < 0) {
@@ -177,15 +176,13 @@ public class GameScreen implements Screen {
 
         }
 
-        Iterator<Rectangle> lasersIterator = lasers.iterator();
-        while (lasersIterator.hasNext()) {
+        for (Iterator<Rectangle> lasersIterator = lasers.iterator(); lasersIterator.hasNext(); ) {
             Rectangle laser = lasersIterator.next();
             laser.x += debugMode ? 1 : 600 * delta;
             if (laser.x > 800) {
                 lasersIterator.remove();
             }
-            asteroidsIterator = asteroids.iterator();
-            while (asteroidsIterator.hasNext()) {
+            for (Iterator<Asteroid> asteroidsIterator = asteroids.iterator(); asteroidsIterator.hasNext(); ) {
                 Asteroid asteroid = asteroidsIterator.next();
                 if (laser.overlaps(asteroid)) {
                     asteroidsIterator.remove();
