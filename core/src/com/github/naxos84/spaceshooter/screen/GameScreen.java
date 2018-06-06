@@ -177,14 +177,18 @@ public class GameScreen implements Screen {
         for (Iterator<Rectangle> lasersIterator = lasers.iterator(); lasersIterator.hasNext(); ) {
             Rectangle laser = lasersIterator.next();
             laser.x += debugMode ? 1 : 600 * delta;
+            boolean laserRemoved = false;
             if (laser.x > 800) {
                 lasersIterator.remove();
+                laserRemoved = true;
             }
             for (Iterator<Asteroid> asteroidsIterator = asteroids.iterator(); asteroidsIterator.hasNext(); ) {
                 Asteroid asteroid = asteroidsIterator.next();
                 if (laser.overlaps(asteroid)) {
                     asteroidsIterator.remove();
-                    lasersIterator.remove();
+                    if (!laserRemoved) {
+                        lasersIterator.remove();
+                    }
                 }
             }
         }
