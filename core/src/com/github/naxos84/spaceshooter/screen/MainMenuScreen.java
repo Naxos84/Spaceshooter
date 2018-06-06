@@ -26,8 +26,8 @@ public class MainMenuScreen implements Screen {
     private final Stage stage;
 
     private TextButton startGame;
+    private TextButton preferences;
     private TextButton exitGame;
-    private Slider slider;
 
     public MainMenuScreen(final SpaceShooter game, final boolean debugMode) {
         this.game = game;
@@ -45,18 +45,26 @@ public class MainMenuScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         Table table = new Table();
         table.setFillParent(true);
-        table.setDebug(true);
+        table.setDebug(debugMode);
 
         stage.addActor(table);
 
-        final Skin skin = new Skin(Gdx.files.internal("skin/kenney/kenney-test.json")); //star-soldier/star-soldier-ui.json"));
+        final Skin skin = new Skin(Gdx.files.internal("skin/kenney/kenney-test2.json")); //star-soldier/star-soldier-ui.json"));
 
         startGame = new TextButton(game.bundle.get("KEY_START_GAME"), skin);
-        startGame.setSize(300, 300);
         startGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setScreen(new GameScreen(game, debugMode));
+                dispose();
+            }
+        });
+
+        preferences = new TextButton(game.bundle.get("KEY_PREFERENCES"), skin);
+        preferences.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(new PreferencesScreen(game, debugMode));
                 dispose();
             }
         });
@@ -69,13 +77,11 @@ public class MainMenuScreen implements Screen {
             }
         });
 
-        slider = new Slider(0f, 1f, .01f, false, skin);
-
         table.add(startGame).fillX().uniformX();
         table.row().pad(10, 0, 10, 0);
-        table.add(exitGame).fillX().uniformX();
+        table.add(preferences).fill().uniformX();
         table.row();
-        table.add(slider);
+        table.add(exitGame).fillX().uniformX();
 
     }
 
