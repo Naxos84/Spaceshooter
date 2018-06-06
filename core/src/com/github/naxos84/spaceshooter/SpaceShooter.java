@@ -33,15 +33,21 @@ public class SpaceShooter extends Game {
     private Locale locale;
     private FileHandle baseFileHandle;
     public I18NBundle bundle;
+    private GamePreferences gamePreferences;
 
     public SpaceShooter(final boolean debugMode) {
         this.debugMode = debugMode;
         locale = Locale.getDefault();
+        gamePreferences = new GamePreferences();
     }
 
     public void setLocale(final Locale locale) {
         this.locale = locale;
         bundle = I18NBundle.createBundle(baseFileHandle, locale);
+    }
+
+    public GamePreferences getGamePreferences() {
+        return gamePreferences;
     }
 
     @Override
