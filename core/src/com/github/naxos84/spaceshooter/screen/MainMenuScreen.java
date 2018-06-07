@@ -3,6 +3,7 @@ package com.github.naxos84.spaceshooter.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
@@ -38,7 +39,6 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void show() {
-
         //Gdx.app.getPreferences("MY_PREFS").putString("LAST_START", "now").flush();
 
 
@@ -83,6 +83,8 @@ public class MainMenuScreen implements Screen {
         table.row();
         table.add(exitGame).fillX().uniformX();
 
+        game.playMenuMusic();
+
     }
 
     @Override
@@ -126,7 +128,6 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void hide() {
-
     }
 
     @Override

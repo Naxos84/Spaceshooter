@@ -31,7 +31,6 @@ public class GameScreen implements Screen {
 
     private Sound shootSound;
     private Sound explosionSound;
-    private Music backgroundMusic;
 
     private OrthographicCamera camera;
 
@@ -58,9 +57,6 @@ public class GameScreen implements Screen {
         laserImage = new Texture("images/lasers/laserBlue01.png");
         shootSound = Gdx.audio.newSound(Gdx.files.internal("audio/laser5.ogg"));
         explosionSound = Gdx.audio.newSound(Gdx.files.internal("audio/explosion_asteroid.ogg"));
-        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/DST-DustLoop.mp3"));
-
-        backgroundMusic.setLooping(true);
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 600);
@@ -103,10 +99,7 @@ public class GameScreen implements Screen {
     public void show() {
         effect = new ParticleEffect();
         effect.load(Gdx.files.internal("images/particles/meteor_explosion.p"), Gdx.files.internal("images/meteors"));
-        if (game.getGamePreferences().isMusicEnabled()) {
-            backgroundMusic.setVolume(game.getGamePreferences().getMusicVolume());
-            backgroundMusic.play();
-        }
+        game.playGameMusic();
     }
 
     @Override
@@ -198,7 +191,9 @@ public class GameScreen implements Screen {
                 if (laser.overlaps(asteroid)) {
                     effect.setPosition(asteroid.x, asteroid.y);
                     effect.start();
-                    explosionSound.play(game.getGamePreferences().getSoundVolume());
+                    if (game.getGamePreferences().isSoundEnabled()) {
+                        explosionSound.play(game.getGamePreferences().getSoundVolume());
+                    }
                     asteroidsIterator.remove();
                     if (!laserRemoved) {
                         lasersIterator.remove();
@@ -230,7 +225,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void hide() {
-        backgroundMusic.stop();
         explosionSound.stop();
         shootSound.stop();
     }
@@ -242,8 +236,6 @@ public class GameScreen implements Screen {
         laserImage.dispose();
         explosionSound.dispose();
         shootSound.dispose();
-        backgroundMusic.stop();
-        backgroundMusic.dispose();
         effect.dispose();
     }
 }

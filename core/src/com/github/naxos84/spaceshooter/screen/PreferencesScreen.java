@@ -92,6 +92,8 @@ public class PreferencesScreen implements Screen {
         table.add(soundEnabled).fill().uniformX();
         table.row();
         table.add(back).fill().uniformX();
+
+        game.playMenuMusic();
     }
 
     @Override

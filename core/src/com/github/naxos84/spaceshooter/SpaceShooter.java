@@ -35,6 +35,9 @@ public class SpaceShooter extends Game {
     public I18NBundle bundle;
     private GamePreferences gamePreferences;
 
+    private Music menuMusic;
+    private Music gameMusic;
+
     public SpaceShooter(final boolean debugMode) {
         this.debugMode = debugMode;
         locale = Locale.getDefault();
@@ -52,12 +55,44 @@ public class SpaceShooter extends Game {
 
     @Override
     public void create() {
+
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/menu_screen_loop.wav"));
+        menuMusic.setLooping(true);
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/game_background_loop.wav"));
+        gameMusic.setLooping(true);
+
         batch = new SpriteBatch();
         font = new BitmapFont();
         baseFileHandle = Gdx.files.internal("i18n/lang");
         bundle = I18NBundle.createBundle(baseFileHandle, locale);
         this.setScreen(new MainMenuScreen(this, debugMode));
 
+    }
+
+    public void playMenuMusic() {
+        if (getGamePreferences().isMusicEnabled()) {
+            if (!menuMusic.isPlaying()) {
+                gameMusic.stop();
+                menuMusic.setVolume(getGamePreferences().getMusicVolume());
+                menuMusic.play();
+            }
+        } else {
+            gameMusic.stop();
+            menuMusic.stop();
+        }
+    }
+
+    public void playGameMusic() {
+        if (getGamePreferences().isMusicEnabled()) {
+            if (!gameMusic.isPlaying()) {
+                menuMusic.stop();
+                gameMusic.setVolume(getGamePreferences().getMusicVolume());
+                gameMusic.play();
+            }
+        } else {
+            gameMusic.stop();
+            menuMusic.stop();
+        }
     }
 
     @Override
@@ -70,7 +105,10 @@ public class SpaceShooter extends Game {
 
     @Override
     public void dispose() {
-
+        menuMusic.stop();
+        menuMusic.dispose();
+        gameMusic.stop();
+        gameMusic.dispose();
         this.screen.dispose();
 
     }
