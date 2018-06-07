@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -30,6 +30,7 @@ public class GameScreen implements Screen {
     private Texture laserImage;
 
     private Sound shootSound;
+    private Sound explosionSound;
     private Music backgroundMusic;
 
     private OrthographicCamera camera;
@@ -38,6 +39,8 @@ public class GameScreen implements Screen {
     private long lastAsteroidSpawn;
     private Array<Rectangle> lasers;
     private long lastLaserSpawn;
+
+    private ParticleEffect effect;
 
     private ShapeRenderer sRenderer;
 
@@ -54,6 +57,7 @@ public class GameScreen implements Screen {
         asteroidTex = new Texture("images/meteors/meteorBrown_big1.png");
         laserImage = new Texture("images/lasers/laserBlue01.png");
         shootSound = Gdx.audio.newSound(Gdx.files.internal("audio/laser5.ogg"));
+        explosionSound = Gdx.audio.newSound(Gdx.files.internal("audio/explosion_asteroid.ogg"));
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/DST-DustLoop.mp3"));
 
         backgroundMusic.setLooping(true);
@@ -67,9 +71,9 @@ public class GameScreen implements Screen {
         ship.x = 800 / 2 - ship.width / 2;
         ship.y = 600 / 2 - ship.height / 2;
 
-        asteroids = new Array<>();
+        asteroids = new Array<Asteroid>();
 
-        lasers = new Array<>();
+        lasers = new Array<Rectangle>();
     }
 
     private void spawnAsteroid() {
@@ -97,6 +101,8 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        effect = new ParticleEffect();
+        effect.load(Gdx.files.internal("images/particles/meteor_explosion.p"), Gdx.files.internal("images/meteors"));
         if (game.getGamePreferences().isMusicEnabled()) {
             backgroundMusic.setVolume(game.getGamePreferences().getMusicVolume());
             backgroundMusic.play();
@@ -125,6 +131,7 @@ public class GameScreen implements Screen {
 
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
+        effect.draw(game.batch, delta);
         game.batch.draw(shipImage, ship.x, ship.y, ship.width, ship.height);
         for (Asteroid asteroid : asteroids) {
             game.batch.draw(asteroid.getTextureRegion(), asteroid.x, asteroid.y, asteroid.width / 2, asteroid.height / 2, asteroid.width, asteroid.height, 1, 1, asteroid.getRotation());
@@ -189,6 +196,9 @@ public class GameScreen implements Screen {
             for (Iterator<Asteroid> asteroidsIterator = asteroids.iterator(); asteroidsIterator.hasNext(); ) {
                 Asteroid asteroid = asteroidsIterator.next();
                 if (laser.overlaps(asteroid)) {
+                    effect.setPosition(asteroid.x, asteroid.y);
+                    effect.start();
+                    explosionSound.play(game.getGamePreferences().getSoundVolume());
                     asteroidsIterator.remove();
                     if (!laserRemoved) {
                         lasersIterator.remove();
@@ -221,6 +231,8 @@ public class GameScreen implements Screen {
     @Override
     public void hide() {
         backgroundMusic.stop();
+        explosionSound.stop();
+        shootSound.stop();
     }
 
     @Override
@@ -228,9 +240,10 @@ public class GameScreen implements Screen {
         shipImage.dispose();
         asteroidTex.dispose();
         laserImage.dispose();
-        shootSound.stop();
+        explosionSound.dispose();
         shootSound.dispose();
         backgroundMusic.stop();
         backgroundMusic.dispose();
+        effect.dispose();
     }
 }
