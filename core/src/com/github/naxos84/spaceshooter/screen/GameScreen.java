@@ -62,14 +62,14 @@ public class GameScreen implements Screen {
         camera.setToOrtho(false, 800, 600);
 
         ship = new Rectangle();
-        ship.x = 800 / 2 - 64 / 2;
-        ship.y = 600 / 2 - 64 / 2;
         ship.width = 64;
         ship.height = 64;
+        ship.x = 800 / 2 - ship.width / 2;
+        ship.y = 600 / 2 - ship.height / 2;
 
-        asteroids = new Array<Asteroid>();
+        asteroids = new Array<>();
 
-        lasers = new Array<Rectangle>();
+        lasers = new Array<>();
     }
 
     private void spawnAsteroid() {
@@ -84,19 +84,23 @@ public class GameScreen implements Screen {
 
     private void spawnLaser() {
         Rectangle laser = new Rectangle();
-        laser.x = ship.x + 64;
-        laser.y = ship.y + 64 / 2;
+        laser.x = ship.x + ship.width;
+        laser.y = ship.y + ship.height / 2;
         laser.width = 27;
         laser.height = 9;
         lasers.add(laser);
         lastLaserSpawn = TimeUtils.nanoTime();
-        shootSound.play();
+        if (game.getGamePreferences().isSoundEnabled()) {
+            shootSound.play(game.getGamePreferences().getSoundVolume());
+        }
     }
 
     @Override
     public void show() {
-
-        backgroundMusic.play();
+        if (game.getGamePreferences().isMusicEnabled()) {
+            backgroundMusic.setVolume(game.getGamePreferences().getMusicVolume());
+            backgroundMusic.play();
+        }
     }
 
     @Override
@@ -165,7 +169,7 @@ public class GameScreen implements Screen {
 
         for (Iterator<Asteroid> asteroidsIterator = asteroids.iterator(); asteroidsIterator.hasNext(); ) {
             Asteroid asteroid = asteroidsIterator.next();
-            asteroid.x -= debugMode ? 1 : 200 * delta;;
+            asteroid.x -= debugMode ? 1 : 200 * delta;
             if (asteroid.x < 0) {
                 asteroidsIterator.remove();
             } else if (asteroid.overlaps(ship)) {
