@@ -56,9 +56,9 @@ public class SpaceShooter extends Game {
     @Override
     public void create() {
 
-        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/menu_screen_loop.wav"));
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/menu_screen_loop.ogg"));
         menuMusic.setLooping(true);
-        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/game_background_loop.wav"));
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/game_background_loop.ogg"));
         gameMusic.setLooping(true);
 
         batch = new SpriteBatch();
