@@ -2,6 +2,7 @@ package com.github.naxos84.spaceshooter.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -13,10 +14,17 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.physics.bullet.collision.Collision;
+import com.badlogic.gdx.physics.bullet.collision.CollisionConstants;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.github.naxos84.spaceshooter.SpaceShooter;
 import com.github.naxos84.spaceshooter.model.Asteroid;
+import com.github.naxos84.spaceshooter.model.Laser;
+import com.github.naxos84.spaceshooter.model.Ship;
+import com.github.naxos84.spaceshooter.renderer.AsteroidRenderer;
+import com.github.naxos84.spaceshooter.renderer.LaserRenderer;
+import com.github.naxos84.spaceshooter.renderer.ShipRenderer;
 
 import java.util.Iterator;
 
@@ -25,7 +33,8 @@ public class GameScreen implements Screen {
     private final SpaceShooter game;
 
     private Texture shipImage;
-    private Rectangle ship;
+    private Ship ship;
+    private ShipRenderer shipRenderer;
     private Texture asteroidTex;
     private Texture laserImage;
 
@@ -35,8 +44,10 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
 
     private Array<Asteroid> asteroids;
+    private AsteroidRenderer asteroidsRenderer;
     private long lastAsteroidSpawn;
-    private Array<Rectangle> lasers;
+    private Array<Laser> lasers;
+    private LaserRenderer laserRenderer;
     private long lastLaserSpawn;
 
     private ParticleEffect effect;
@@ -48,6 +59,7 @@ public class GameScreen implements Screen {
     public GameScreen(final SpaceShooter game, final boolean debugMode) {
         this.game = game;
         this.debugMode = debugMode;
+
         if (debugMode) {
             sRenderer = new ShapeRenderer();
         }
@@ -61,33 +73,25 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 600);
 
-        ship = new Rectangle();
-        ship.width = 64;
-        ship.height = 64;
-        ship.x = 800 / 2 - ship.width / 2;
-        ship.y = 600 / 2 - ship.height / 2;
+        ship = new Ship(800 / 2 - 64 / 2, 600 / 2 - 64 / 2, 64, 64);
 
         asteroids = new Array<Asteroid>();
 
-        lasers = new Array<Rectangle>();
+        lasers = new Array<Laser>();
+
+        shipRenderer = new ShipRenderer(shipImage);
+        asteroidsRenderer = new AsteroidRenderer(asteroidTex);
+        laserRenderer = new LaserRenderer(laserImage);
     }
 
     private void spawnAsteroid() {
-        Asteroid asteroid = new Asteroid(asteroidTex, MathUtils.random(360));
-        asteroid.x = 810;
-        asteroid.y = MathUtils.random(10, 600 - 64);
-        asteroid.width = 64;
-        asteroid.height = 64;
+        Asteroid asteroid = new Asteroid(810,MathUtils.random(10, 600 - 64), 64, 64, MathUtils.random(360));
         asteroids.add(asteroid);
         lastAsteroidSpawn = TimeUtils.nanoTime();
     }
 
     private void spawnLaser() {
-        Rectangle laser = new Rectangle();
-        laser.x = ship.x + ship.width;
-        laser.y = ship.y + ship.height / 2;
-        laser.width = 27;
-        laser.height = 9;
+        Laser laser = new Laser(ship.getX() + ship.getWidth(), ship.getY() + ship.getHeight() / 2, 27, 9);
         lasers.add(laser);
         lastLaserSpawn = TimeUtils.nanoTime();
         if (game.getGamePreferences().isSoundEnabled()) {
@@ -112,12 +116,12 @@ public class GameScreen implements Screen {
         if (debugMode) {
             sRenderer.begin(ShapeRenderer.ShapeType.Line);
             sRenderer.setColor(Color.RED);
-            sRenderer.rect(ship.x, ship.y, ship.width, ship.height);
+            shipRenderer.renderDebug(sRenderer, ship);
             for (Asteroid asteroid : asteroids) {
-                sRenderer.rect(asteroid.x, asteroid.y, asteroid.width, asteroid.height);
+                asteroidsRenderer.renderDebug(sRenderer, asteroid);
             }
-            for (Rectangle laser : lasers) {
-                sRenderer.rect(laser.x, laser.y, laser.width, laser.height);
+            for (Laser laser : lasers) {
+                laserRenderer.renderDebug(sRenderer, laser);
             }
             sRenderer.end();
         }
@@ -125,26 +129,26 @@ public class GameScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         effect.draw(game.batch, delta);
-        game.batch.draw(shipImage, ship.x, ship.y, ship.width, ship.height);
+        shipRenderer.render(game.batch, ship);
         for (Asteroid asteroid : asteroids) {
-            game.batch.draw(asteroid.getTextureRegion(), asteroid.x, asteroid.y, asteroid.width / 2, asteroid.height / 2, asteroid.width, asteroid.height, 1, 1, asteroid.getRotation());
+            asteroidsRenderer.render(game.batch, asteroid); //TODO add rotation back in
         }
-        for (Rectangle laser : lasers) {
-            game.batch.draw(laserImage, laser.x, laser.y, laser.width, laser.height);
+        for (Laser laser : lasers) {
+            laserRenderer.render(game.batch, laser);
         }
         game.batch.end();
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            ship.x -= debugMode ? 1 : 100 * delta;
+            ship.moveLeft(delta);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            ship.x += debugMode ? 1 : 100 * delta;
+            ship.moveRight(delta);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            ship.y += debugMode ? 1 : 100 * delta;
+            ship.moveUp(delta);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            ship.y -= debugMode ? 1 : 100 * delta;
+            ship.moveDown(delta);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             if (TimeUtils.nanoTime() - lastLaserSpawn > 100000000) {
@@ -159,9 +163,7 @@ public class GameScreen implements Screen {
             spawnAsteroid();
         }
 
-
-        ship.x = MathUtils.clamp(ship.x, 0, 800 - ship.width);
-        ship.y = MathUtils.clamp(ship.y, ship.height, 600);
+        ship.updatePosition();
 
         if (TimeUtils.nanoTime() - lastAsteroidSpawn > 1000000000) {
             spawnAsteroid();
@@ -169,27 +171,27 @@ public class GameScreen implements Screen {
 
         for (Iterator<Asteroid> asteroidsIterator = asteroids.iterator(); asteroidsIterator.hasNext(); ) {
             Asteroid asteroid = asteroidsIterator.next();
-            asteroid.x -= debugMode ? 1 : 200 * delta;
-            if (asteroid.x < 0) {
+            asteroid.updatePosition(delta);
+            if (asteroid.isDead()) {
                 asteroidsIterator.remove();
-            } else if (asteroid.overlaps(ship)) {
+            } else if (asteroid.overlaps(ship.getCollisionBox())) {
                 quitGame();
             }
 
         }
 
-        for (Iterator<Rectangle> lasersIterator = lasers.iterator(); lasersIterator.hasNext(); ) {
-            Rectangle laser = lasersIterator.next();
-            laser.x += debugMode ? 1 : 600 * delta;
+        for (Iterator<Laser> lasersIterator = lasers.iterator(); lasersIterator.hasNext(); ) {
+            Laser laser = lasersIterator.next();
+            laser.updatePosition(delta);
             boolean laserRemoved = false;
-            if (laser.x > 800) {
+            if (laser.isDead()) {
                 lasersIterator.remove();
                 laserRemoved = true;
             }
             for (Iterator<Asteroid> asteroidsIterator = asteroids.iterator(); asteroidsIterator.hasNext(); ) {
                 Asteroid asteroid = asteroidsIterator.next();
-                if (laser.overlaps(asteroid)) {
-                    effect.setPosition(asteroid.x, asteroid.y);
+                if (laser.overlaps(asteroid.getCollisionBox())) {
+                    effect.setPosition(asteroid.getX(), asteroid.getY());
                     effect.start();
                     if (game.getGamePreferences().isSoundEnabled()) {
                         explosionSound.play(game.getGamePreferences().getSoundVolume());

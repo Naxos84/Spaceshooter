@@ -2,28 +2,43 @@ package com.github.naxos84.spaceshooter.model;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.github.naxos84.spaceshooter.SpaceShooter;
 
-public class Asteroid {
+public class Ship {
 
     private static final int MAX_HEALTH = 100;
-    private static final int MIN_HEALTH = 100;
-    private int rotation;
-    private float speed = 200;
+    private static final int MIN_HEALTH = 0;
+
+    private float hSpeed = 200;
+    private float vSpeed = 200;
     private Rectangle rect;
     private int currentHealth;
 
-    public Asteroid(final float x, final float y, final float width, final float height, final int rotation) {
+    public Ship(final float x, final float y, final float height, final float width) {
         this.rect = new Rectangle(x, y, width, height);
-        this.rotation = rotation;
-        this.currentHealth = MAX_HEALTH;
+        currentHealth = MAX_HEALTH;
     }
 
-    public void updatePosition(final float deltaTime) {
-        rect.x -= speed * deltaTime;
+
+    public void updatePosition() {
+        rect.x = MathUtils.clamp(rect.x, 0, SpaceShooter.SCREEN_WIDTH - rect.width);
+        rect.y = MathUtils.clamp(rect.y, 0, SpaceShooter.HEIGHT - rect.height);
     }
 
-    public void setSpeed(final float speed) {
-        this.speed = speed;
+    public void moveLeft(final float delta) {
+        rect.x -= hSpeed * delta;
+    }
+
+    public void moveRight(final float delta) {
+        rect.x += hSpeed * delta;
+    }
+
+    public void moveUp(final float delta) {
+        rect.y += vSpeed * delta;
+    }
+
+    public void moveDown(final float delta) {
+        rect.y -= vSpeed * delta;
     }
 
     public float getX() {
@@ -63,13 +78,5 @@ public class Asteroid {
 
     public Rectangle getCollisionBox() {
         return rect;
-    }
-
-    public int getRotation() {
-        return rotation;
-    }
-
-    public boolean isDead() {
-        return rect.x + rect.width < 0 || currentHealth == 0;
     }
 }

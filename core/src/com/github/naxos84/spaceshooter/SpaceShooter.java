@@ -27,6 +27,9 @@ import java.util.Locale;
 
 public class SpaceShooter extends Game {
 
+    public static final float SCREEN_WIDTH = 800;
+    public static final float HEIGHT = 600;
+
     public SpriteBatch batch;
     public BitmapFont font;
     private final boolean debugMode;
