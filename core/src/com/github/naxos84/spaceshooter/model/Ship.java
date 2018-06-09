@@ -9,14 +9,19 @@ public class Ship {
     private static final int MAX_HEALTH = 100;
     private static final int MIN_HEALTH = 0;
 
+    private static final int MAX_ENERGY = 100;
+    private static final int MIN_ENERGY = 0;
+
     private float hSpeed = 200;
     private float vSpeed = 200;
     private Rectangle rect;
     private int currentHealth;
+    private int energy;
 
     public Ship(final float x, final float y, final float height, final float width) {
         this.rect = new Rectangle(x, y, width, height);
         currentHealth = MAX_HEALTH;
+        energy = MAX_ENERGY;
     }
 
 
@@ -62,7 +67,6 @@ public class Ship {
     }
 
     public void addHealth(final int health) {
-
         this.currentHealth += health;
         this.currentHealth = MathUtils.clamp(this.currentHealth, MIN_HEALTH, MAX_HEALTH);
     }
@@ -70,6 +74,24 @@ public class Ship {
     public void reduceHealth(int health) {
         this.currentHealth -= health;
         this.currentHealth = MathUtils.clamp(this.currentHealth, MIN_HEALTH, MAX_HEALTH);
+    }
+
+    public boolean isDead() {
+        return currentHealth == 0;
+    }
+
+    public int getCurrentEnergy() {
+        return energy;
+    }
+
+    public void addEnergy(final int energy) {
+        this.energy += energy;
+        this.energy = MathUtils.clamp(this.energy, MIN_HEALTH, MAX_HEALTH);
+    }
+
+    public void reduceEnergy(int energy) {
+        this.energy -= energy;
+        this.energy = MathUtils.clamp(this.energy, MIN_HEALTH, MAX_HEALTH);
     }
 
     public boolean overlaps(final Rectangle other) {

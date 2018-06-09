@@ -2,9 +2,7 @@ package com.github.naxos84.spaceshooter.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -13,9 +11,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.physics.bullet.collision.Collision;
-import com.badlogic.gdx.physics.bullet.collision.CollisionConstants;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.github.naxos84.spaceshooter.SpaceShooter;
@@ -57,15 +52,15 @@ public class GameScreen implements Screen {
 
     private final boolean debugMode;
 
-    private final Score score;
+    private Score score;
+    private float energyTimer = 0f;
 
     public GameScreen(final SpaceShooter game, final boolean debugMode) {
         this.game = game;
         this.debugMode = debugMode;
 
-        if (debugMode) {
-            sRenderer = new ShapeRenderer();
-        }
+        sRenderer = new ShapeRenderer();
+
         Gdx.app.log("SpaceShooter", "creating things.");
         shipImage = new Texture("images/player/playerShip1_blue.png");
         asteroidTex = new Texture("images/meteors/meteorBrown_big1.png");
@@ -86,21 +81,23 @@ public class GameScreen implements Screen {
         asteroidsRenderer = new AsteroidRenderer(asteroidTex);
         laserRenderer = new LaserRenderer(laserImage);
 
-        score = new Score();
     }
 
     private void spawnAsteroid() {
-        Asteroid asteroid = new Asteroid(810,MathUtils.random(10, 600 - 64), 64, 64, MathUtils.random(360));
+        Asteroid asteroid = new Asteroid(810, MathUtils.random(10, 600 - 64), 64, 64, MathUtils.random(360));
         asteroids.add(asteroid);
         lastAsteroidSpawn = TimeUtils.nanoTime();
     }
 
     private void spawnLaser() {
-        Laser laser = new Laser(ship.getX() + ship.getWidth(), ship.getY() + ship.getHeight() / 2, 27, 9);
-        lasers.add(laser);
-        lastLaserSpawn = TimeUtils.nanoTime();
-        if (game.getGamePreferences().isSoundEnabled()) {
-            shootSound.play(game.getGamePreferences().getSoundVolume());
+        if (ship.getCurrentEnergy() > 10) {
+            Laser laser = new Laser(ship.getX() + ship.getWidth(), ship.getY() + ship.getHeight() / 2, 27, 9);
+            lasers.add(laser);
+            lastLaserSpawn = TimeUtils.nanoTime();
+            ship.reduceEnergy(10);
+            if (game.getGamePreferences().isSoundEnabled()) {
+                shootSound.play(game.getGamePreferences().getSoundVolume());
+            }
         }
     }
 
@@ -109,6 +106,7 @@ public class GameScreen implements Screen {
         effect = new ParticleEffect();
         effect.load(Gdx.files.internal("images/particles/meteor_explosion.p"), Gdx.files.internal("images/meteors"));
         game.playGameMusic();
+        score = new Score();
     }
 
     @Override
@@ -118,8 +116,8 @@ public class GameScreen implements Screen {
 
         camera.update();
 
+        sRenderer.begin(ShapeRenderer.ShapeType.Line);
         if (debugMode) {
-            sRenderer.begin(ShapeRenderer.ShapeType.Line);
             sRenderer.setColor(Color.RED);
             shipRenderer.renderDebug(sRenderer, ship);
             for (Asteroid asteroid : asteroids) {
@@ -128,8 +126,14 @@ public class GameScreen implements Screen {
             for (Laser laser : lasers) {
                 laserRenderer.renderDebug(sRenderer, laser);
             }
-            sRenderer.end();
         }
+        sRenderer.setColor(Color.ORANGE);
+        sRenderer.setAutoShapeType(true);
+        sRenderer.set(ShapeRenderer.ShapeType.Filled);
+        sRenderer.rect(SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 40, ship.getCurrentHealth() * 2, 15);
+        sRenderer.setColor(Color.BLUE);
+        sRenderer.rect(SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 24, ship.getCurrentEnergy() * 2, 15);
+        sRenderer.end();
 
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
@@ -169,6 +173,12 @@ public class GameScreen implements Screen {
             spawnAsteroid();
         }
 
+        energyTimer += delta;
+        if (energyTimer >= .1f) {
+            ship.addEnergy(2);
+            energyTimer -= .1f;
+        }
+
         ship.updatePosition();
 
         if (TimeUtils.nanoTime() - lastAsteroidSpawn > 1000000000) {
@@ -181,7 +191,16 @@ public class GameScreen implements Screen {
             if (asteroid.isDead()) {
                 asteroidsIterator.remove();
             } else if (asteroid.overlaps(ship.getCollisionBox())) {
-                quitGame();
+                ship.reduceHealth(10);
+                asteroidsIterator.remove();
+                effect.setPosition(asteroid.getX(), asteroid.getY());
+                effect.start();
+                if (game.getGamePreferences().isSoundEnabled()) {
+                    explosionSound.play(game.getGamePreferences().getSoundVolume());
+                }
+                if (ship.isDead()) {
+                    quitGame();
+                }
             }
 
         }
