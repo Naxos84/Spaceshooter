@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.github.naxos84.spaceshooter.SpaceShooter;
 import com.github.naxos84.spaceshooter.model.Asteroid;
 import com.github.naxos84.spaceshooter.model.Laser;
+import com.github.naxos84.spaceshooter.model.Score;
 import com.github.naxos84.spaceshooter.model.Ship;
 import com.github.naxos84.spaceshooter.renderer.AsteroidRenderer;
 import com.github.naxos84.spaceshooter.renderer.LaserRenderer;
@@ -56,6 +57,8 @@ public class GameScreen implements Screen {
 
     private final boolean debugMode;
 
+    private final Score score;
+
     public GameScreen(final SpaceShooter game, final boolean debugMode) {
         this.game = game;
         this.debugMode = debugMode;
@@ -82,6 +85,8 @@ public class GameScreen implements Screen {
         shipRenderer = new ShipRenderer(shipImage);
         asteroidsRenderer = new AsteroidRenderer(asteroidTex);
         laserRenderer = new LaserRenderer(laserImage);
+
+        score = new Score();
     }
 
     private void spawnAsteroid() {
@@ -128,6 +133,7 @@ public class GameScreen implements Screen {
 
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
+        score.render(game.batch);
         effect.draw(game.batch, delta);
         shipRenderer.render(game.batch, ship);
         for (Asteroid asteroid : asteroids) {
@@ -193,6 +199,7 @@ public class GameScreen implements Screen {
                 if (laser.overlaps(asteroid.getCollisionBox())) {
                     effect.setPosition(asteroid.getX(), asteroid.getY());
                     effect.start();
+                    score.add(1);
                     if (game.getGamePreferences().isSoundEnabled()) {
                         explosionSound.play(game.getGamePreferences().getSoundVolume());
                     }
