@@ -1,0 +1,48 @@
+
+bars.png
+size: 128,32
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+barHorizontal_blue_left
+  rotate: false
+  xy: 62, 2
+  size: 6, 26
+  orig: 6, 26
+  offset: 0, 0
+  index: -1
+barHorizontal_blue_mid
+  rotate: false
+  xy: 2, 2
+  size: 16, 26
+  orig: 16, 26
+  offset: 0, 0
+  index: -1
+barHorizontal_blue_right
+  rotate: false
+  xy: 54, 2
+  size: 6, 26
+  orig: 6, 26
+  offset: 0, 0
+  index: -1
+barHorizontal_red_left
+  rotate: false
+  xy: 46, 2
+  size: 6, 26
+  orig: 6, 26
+  offset: 0, 0
+  index: -1
+barHorizontal_red_mid
+  rotate: false
+  xy: 20, 2
+  size: 16, 26
+  orig: 16, 26
+  offset: 0, 0
+  index: -1
+barHorizontal_red_right
+  rotate: false
+  xy: 38, 2
+  size: 6, 26
+  orig: 6, 26
+  offset: 0, 0
+  index: -1

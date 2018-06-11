@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
@@ -27,33 +29,34 @@ import java.util.Iterator;
 public class GameScreen implements Screen {
 
     private final SpaceShooter game;
-
+    private final boolean debugMode;
     private Texture shipImage;
     private Ship ship;
     private ShipRenderer shipRenderer;
     private Texture asteroidTex;
     private Texture laserImage;
-
     private Sound shootSound;
     private Sound explosionSound;
-
     private OrthographicCamera camera;
-
     private Array<Asteroid> asteroids;
     private AsteroidRenderer asteroidsRenderer;
     private long lastAsteroidSpawn;
     private Array<Laser> lasers;
     private LaserRenderer laserRenderer;
     private long lastLaserSpawn;
-
     private ParticleEffect effect;
-
     private ShapeRenderer sRenderer;
-
-    private final boolean debugMode;
-
     private Score score;
     private float energyTimer = 0f;
+
+    private TextureAtlas atlas;
+    private TextureRegion healthBarLeft;
+    private TextureRegion healthBarMid;
+    private TextureRegion healthBarRight;
+    private TextureRegion energyBarLeft;
+    private TextureRegion energyBarMid;
+    private TextureRegion energyBarRight;
+
 
     public GameScreen(final SpaceShooter game, final boolean debugMode) {
         this.game = game;
@@ -81,6 +84,8 @@ public class GameScreen implements Screen {
         asteroidsRenderer = new AsteroidRenderer(asteroidTex);
         laserRenderer = new LaserRenderer(laserImage);
 
+        atlas = new TextureAtlas(Gdx.files.internal("textures/bars.atlas"));
+
     }
 
     private void spawnAsteroid() {
@@ -107,6 +112,14 @@ public class GameScreen implements Screen {
         effect.load(Gdx.files.internal("images/particles/meteor_explosion.p"), Gdx.files.internal("images/meteors"));
         game.playGameMusic();
         score = new Score();
+
+
+        healthBarLeft = atlas.findRegion("barHorizontal_red_left");
+        healthBarMid = atlas.findRegion("barHorizontal_red_mid");
+        healthBarRight = atlas.findRegion("barHorizontal_red_right");
+        energyBarLeft = atlas.findRegion("barHorizontal_blue_left");
+        energyBarMid = atlas.findRegion("barHorizontal_blue_mid");
+        energyBarRight = atlas.findRegion("barHorizontal_blue_right");
     }
 
     @Override
@@ -127,12 +140,6 @@ public class GameScreen implements Screen {
                 laserRenderer.renderDebug(sRenderer, laser);
             }
         }
-        sRenderer.setColor(Color.ORANGE);
-        sRenderer.setAutoShapeType(true);
-        sRenderer.set(ShapeRenderer.ShapeType.Filled);
-        sRenderer.rect(SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 40, ship.getCurrentHealth() * 2, 15);
-        sRenderer.setColor(Color.BLUE);
-        sRenderer.rect(SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 24, ship.getCurrentEnergy() * 2, 15);
         sRenderer.end();
 
         game.batch.setProjectionMatrix(camera.combined);
@@ -146,6 +153,15 @@ public class GameScreen implements Screen {
         for (Laser laser : lasers) {
             laserRenderer.render(game.batch, laser);
         }
+        float healthBarWidth = ship.getCurrentHealth() * 2f;
+        game.batch.draw(healthBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 40, 6, 15);
+        game.batch.draw(healthBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.HEIGHT - 40, healthBarWidth, 15);
+        game.batch.draw(healthBarRight, SpaceShooter.SCREEN_WIDTH - 214 + healthBarWidth, SpaceShooter.HEIGHT - 40, 6, 15);
+
+        float energyBarWidth = ship.getCurrentEnergy() * 2f;
+        game.batch.draw(energyBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 24, 6, 15);
+        game.batch.draw(energyBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.HEIGHT - 24, energyBarWidth, 15);
+        game.batch.draw(energyBarRight, SpaceShooter.SCREEN_WIDTH - 214 + energyBarWidth, SpaceShooter.HEIGHT - 24, 6, 15);
         game.batch.end();
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
