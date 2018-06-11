@@ -153,12 +153,12 @@ public class GameScreen implements Screen {
         for (Laser laser : lasers) {
             laserRenderer.render(game.batch, laser);
         }
-        float healthBarWidth = ship.getCurrentHealth() * 2f;
+        float healthBarWidth = (float)ship.getCurrentHealth() / Ship.MAX_HEALTH * 200f;
         game.batch.draw(healthBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 40, 6, 15);
         game.batch.draw(healthBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.HEIGHT - 40, healthBarWidth, 15);
         game.batch.draw(healthBarRight, SpaceShooter.SCREEN_WIDTH - 214 + healthBarWidth, SpaceShooter.HEIGHT - 40, 6, 15);
 
-        float energyBarWidth = ship.getCurrentEnergy() * 2f;
+        float energyBarWidth = (float)ship.getCurrentEnergy() / Ship.MAX_ENERGY * 200f;
         game.batch.draw(energyBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 24, 6, 15);
         game.batch.draw(energyBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.HEIGHT - 24, energyBarWidth, 15);
         game.batch.draw(energyBarRight, SpaceShooter.SCREEN_WIDTH - 214 + energyBarWidth, SpaceShooter.HEIGHT - 24, 6, 15);

@@ -6,10 +6,10 @@ import com.github.naxos84.spaceshooter.SpaceShooter;
 
 public class Ship {
 
-    private static final int MAX_HEALTH = 100;
+    public static final int MAX_HEALTH = 100;
     private static final int MIN_HEALTH = 0;
 
-    private static final int MAX_ENERGY = 100;
+    public static final int MAX_ENERGY = 100;
     private static final int MIN_ENERGY = 0;
 
     private float hSpeed = 200;
@@ -86,12 +86,12 @@ public class Ship {
 
     public void addEnergy(final int energy) {
         this.energy += energy;
-        this.energy = MathUtils.clamp(this.energy, MIN_HEALTH, MAX_HEALTH);
+        this.energy = MathUtils.clamp(this.energy, MIN_ENERGY, MAX_ENERGY);
     }
 
     public void reduceEnergy(int energy) {
         this.energy -= energy;
-        this.energy = MathUtils.clamp(this.energy, MIN_HEALTH, MAX_HEALTH);
+        this.energy = MathUtils.clamp(this.energy, MIN_ENERGY, MAX_ENERGY);
     }
 
     public boolean overlaps(final Rectangle other) {
