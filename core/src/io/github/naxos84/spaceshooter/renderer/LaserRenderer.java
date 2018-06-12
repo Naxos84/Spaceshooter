@@ -3,7 +3,6 @@ package io.github.naxos84.spaceshooter.renderer;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import io.github.naxos84.spaceshooter.model.Asteroid;
 import io.github.naxos84.spaceshooter.model.Laser;
 
 public class LaserRenderer {
@@ -19,6 +18,6 @@ public class LaserRenderer {
     }
 
     public void renderDebug(final ShapeRenderer renderer, final Laser laser) {
-        renderer.rect(laser.getX(),laser.getY() ,laser.getWidth() ,laser.getHeight() );
+        renderer.rect(laser.getX(), laser.getY(), laser.getWidth(), laser.getHeight());
     }
 }

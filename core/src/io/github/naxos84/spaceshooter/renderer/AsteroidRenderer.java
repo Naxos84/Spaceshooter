@@ -1,14 +1,10 @@
 package io.github.naxos84.spaceshooter.renderer;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import io.github.naxos84.spaceshooter.model.Asteroid;
-
-import java.util.Random;
 
 public class AsteroidRenderer {
 
@@ -23,6 +19,6 @@ public class AsteroidRenderer {
     }
 
     public void renderDebug(final ShapeRenderer renderer, final Asteroid asteroid) {
-        renderer.rect(asteroid.getX(),asteroid.getY() ,asteroid.getWidth() ,asteroid.getHeight() );
+        renderer.rect(asteroid.getX(), asteroid.getY(), asteroid.getWidth(), asteroid.getHeight());
     }
 }
