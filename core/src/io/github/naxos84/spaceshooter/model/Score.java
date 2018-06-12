@@ -3,6 +3,7 @@ package io.github.naxos84.spaceshooter.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.I18NBundle;
 import io.github.naxos84.spaceshooter.SpaceShooter;
 
 public class Score {
@@ -23,7 +24,11 @@ public class Score {
         return value;
     }
 
-    public void render(SpriteBatch batch) {
-        font.draw(batch, "Score: " + String.valueOf(value), 10, SpaceShooter.HEIGHT - 10);
+    public void reset() {
+        value = 0;
+    }
+
+    public void render(final SpriteBatch batch, final I18NBundle bundle) {
+        font.draw(batch, bundle.get("SCORE") + ": " + String.valueOf(value), 10, SpaceShooter.HEIGHT - 10);
     }
 }

@@ -20,11 +20,13 @@ import io.github.naxos84.spaceshooter.model.Asteroid;
 import io.github.naxos84.spaceshooter.model.Laser;
 import io.github.naxos84.spaceshooter.model.Score;
 import io.github.naxos84.spaceshooter.model.Ship;
+import io.github.naxos84.spaceshooter.overlay.GameOver;
 import io.github.naxos84.spaceshooter.renderer.AsteroidRenderer;
 import io.github.naxos84.spaceshooter.renderer.LaserRenderer;
 import io.github.naxos84.spaceshooter.renderer.ShipRenderer;
 
 import java.util.Iterator;
+import java.util.Random;
 
 public class GameScreen implements Screen {
 
@@ -48,6 +50,7 @@ public class GameScreen implements Screen {
     private ShapeRenderer sRenderer;
     private Score score;
     private float energyTimer = 0f;
+    private GameOver gameOver;
 
     private TextureAtlas atlas;
     private TextureRegion healthBarLeft;
@@ -56,6 +59,11 @@ public class GameScreen implements Screen {
     private TextureRegion energyBarLeft;
     private TextureRegion energyBarMid;
     private TextureRegion energyBarRight;
+
+    private TextureAtlas asteroidsAtlas;
+    private int asteroidsAtlasSize;
+
+    private final Random random = new Random();
 
 
     public GameScreen(final SpaceShooter game, final boolean debugMode) {
@@ -80,16 +88,24 @@ public class GameScreen implements Screen {
 
         lasers = new Array<Laser>();
 
+
+        asteroidsAtlas = new TextureAtlas(Gdx.files.internal("textures/asteroids.atlas"));
+        asteroidsAtlasSize = asteroidsAtlas.getRegions().size;
+
         shipRenderer = new ShipRenderer(shipImage);
-        asteroidsRenderer = new AsteroidRenderer(asteroidTex);
+        asteroidsRenderer = new AsteroidRenderer(asteroidsAtlas.getRegions());
         laserRenderer = new LaserRenderer(laserImage);
 
         atlas = new TextureAtlas(Gdx.files.internal("textures/bars.atlas"));
+        gameOver = new GameOver();
 
     }
 
     private void spawnAsteroid() {
-        Asteroid asteroid = new Asteroid(810, MathUtils.random(10, 600 - 64), 64, 64, MathUtils.random(360));
+        int id = random.nextInt(asteroidsAtlasSize);
+        float width = asteroidsAtlas.getRegions().get(id).getRegionWidth();
+        float height = asteroidsAtlas.getRegions().get(id).getRegionHeight();
+        Asteroid asteroid = new Asteroid(id,810, MathUtils.random(10, 600 - height), width, height, MathUtils.random(360));
         asteroids.add(asteroid);
         lastAsteroidSpawn = TimeUtils.nanoTime();
     }
@@ -128,7 +144,36 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
+        game.batch.setProjectionMatrix(camera.combined);
+        if (ship.isDead()) {
+            gameOver.show();
+            renderDebug();
+            game.batch.begin();
+            renderObjects(delta);
+            renderGameOver(delta);
+            game.batch.end();
+            updateObjects(delta);
+            checkCollisions(delta);
+            if( Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+                resetGame();
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                quitGame();
+            }
 
+        } else {
+            gameOver.hide();
+            renderDebug();
+            game.batch.begin();
+            renderObjects(delta);
+            game.batch.end();
+            handleInput(delta);
+            updateObjects(delta);
+            checkCollisions(delta);
+        }
+
+    }
+
+    private void renderDebug() {
         sRenderer.begin(ShapeRenderer.ShapeType.Line);
         if (debugMode) {
             sRenderer.setColor(Color.RED);
@@ -141,10 +186,10 @@ public class GameScreen implements Screen {
             }
         }
         sRenderer.end();
+    }
 
-        game.batch.setProjectionMatrix(camera.combined);
-        game.batch.begin();
-        score.render(game.batch);
+    private void renderObjects(final float delta) {
+        score.render(game.batch, game.bundle);
         effect.draw(game.batch, delta);
         shipRenderer.render(game.batch, ship);
         for (Asteroid asteroid : asteroids) {
@@ -162,8 +207,9 @@ public class GameScreen implements Screen {
         game.batch.draw(energyBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 24, 6, 15);
         game.batch.draw(energyBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.HEIGHT - 24, energyBarWidth, 15);
         game.batch.draw(energyBarRight, SpaceShooter.SCREEN_WIDTH - 214 + energyBarWidth, SpaceShooter.HEIGHT - 24, 6, 15);
-        game.batch.end();
+    }
 
+    private void handleInput(final float delta) {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             ship.moveLeft(delta);
         }
@@ -188,34 +234,35 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) {
             spawnAsteroid();
         }
+    }
 
+    private void updateObjects(final float delta) {
         energyTimer += delta;
         if (energyTimer >= .1f) {
-            ship.addEnergy(2);
+            ship.addEnergy(3);
             energyTimer -= .1f;
         }
 
         ship.updatePosition();
 
-        if (TimeUtils.nanoTime() - lastAsteroidSpawn > 1000000000) {
+        if (TimeUtils.nanoTime() - lastAsteroidSpawn > 500000000) {
             spawnAsteroid();
         }
+    }
 
+    private void checkCollisions(final float delta) {
         for (Iterator<Asteroid> asteroidsIterator = asteroids.iterator(); asteroidsIterator.hasNext(); ) {
             Asteroid asteroid = asteroidsIterator.next();
             asteroid.updatePosition(delta);
             if (asteroid.isDead()) {
                 asteroidsIterator.remove();
-            } else if (asteroid.overlaps(ship.getCollisionBox())) {
+            } else if (ship.isAlive() && asteroid.overlaps(ship.getCollisionBox())) {
                 ship.reduceHealth(10);
                 asteroidsIterator.remove();
                 effect.setPosition(asteroid.getX(), asteroid.getY());
                 effect.start();
                 if (game.getGamePreferences().isSoundEnabled()) {
                     explosionSound.play(game.getGamePreferences().getSoundVolume());
-                }
-                if (ship.isDead()) {
-                    quitGame();
                 }
             }
 
@@ -247,9 +294,22 @@ public class GameScreen implements Screen {
         }
     }
 
+    private void renderGameOver(final float delta) {
+        gameOver.render(game.batch, game.bundle, delta);
+    }
+
     private void quitGame() {
         game.setScreen(new MainMenuScreen(game, debugMode));
         dispose();
+    }
+
+    private void resetGame() {
+        ship.addHealth(Ship.MAX_HEALTH);
+        ship.addEnergy(Ship.MAX_ENERGY);
+        ship.setPosition(800 / 2 - 64 / 2, 600 / 2 - 64 / 2);
+        asteroids.clear();
+        lasers.clear();
+        score.reset();
     }
 
     @Override

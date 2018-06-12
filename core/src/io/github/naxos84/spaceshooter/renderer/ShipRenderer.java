@@ -18,7 +18,9 @@ public class ShipRenderer {
     }
 
     public void render(final SpriteBatch batch, final Ship ship) {
-        batch.draw(texture, ship.getX(), ship.getY(), ship.getWidth(), ship.getHeight());
+        if (ship.isAlive()) {
+            batch.draw(texture, ship.getX(), ship.getY(), ship.getWidth(), ship.getHeight());
+        }
     }
 
     public void renderDebug(final ShapeRenderer renderer, final Ship ship) {

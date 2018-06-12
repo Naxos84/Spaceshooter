@@ -1,0 +1,146 @@
+
+asteroids.png
+size: 1024,128
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+meteorBrown_big1
+  rotate: false
+  xy: 549, 42
+  size: 101, 84
+  orig: 101, 84
+  offset: 0, 0
+  index: -1
+meteorBrown_big2
+  rotate: false
+  xy: 124, 28
+  size: 120, 98
+  orig: 120, 98
+  offset: 0, 0
+  index: -1
+meteorBrown_big3
+  rotate: false
+  xy: 743, 44
+  size: 89, 82
+  orig: 89, 82
+  offset: 0, 0
+  index: -1
+meteorBrown_big4
+  rotate: false
+  xy: 346, 30
+  size: 98, 96
+  orig: 98, 96
+  offset: 0, 0
+  index: -1
+meteorBrown_med1
+  rotate: false
+  xy: 834, 83
+  size: 43, 43
+  orig: 43, 43
+  offset: 0, 0
+  index: -1
+meteorBrown_med3
+  rotate: false
+  xy: 652, 2
+  size: 45, 40
+  orig: 45, 40
+  offset: 0, 0
+  index: -1
+meteorBrown_small1
+  rotate: false
+  xy: 834, 53
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+meteorBrown_small2
+  rotate: false
+  xy: 246, 2
+  size: 29, 26
+  orig: 29, 26
+  offset: 0, 0
+  index: -1
+meteorBrown_tiny1
+  rotate: false
+  xy: 2, 8
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+meteorBrown_tiny2
+  rotate: false
+  xy: 308, 13
+  size: 16, 15
+  orig: 16, 15
+  offset: 0, 0
+  index: -1
+meteorGrey_big1
+  rotate: false
+  xy: 446, 42
+  size: 101, 84
+  orig: 101, 84
+  offset: 0, 0
+  index: -1
+meteorGrey_big2
+  rotate: false
+  xy: 2, 28
+  size: 120, 98
+  orig: 120, 98
+  offset: 0, 0
+  index: -1
+meteorGrey_big3
+  rotate: false
+  xy: 652, 44
+  size: 89, 82
+  orig: 89, 82
+  offset: 0, 0
+  index: -1
+meteorGrey_big4
+  rotate: false
+  xy: 246, 30
+  size: 98, 96
+  orig: 98, 96
+  offset: 0, 0
+  index: -1
+meteorGrey_med1
+  rotate: false
+  xy: 879, 83
+  size: 43, 43
+  orig: 43, 43
+  offset: 0, 0
+  index: -1
+meteorGrey_med2
+  rotate: false
+  xy: 699, 2
+  size: 45, 40
+  orig: 45, 40
+  offset: 0, 0
+  index: -1
+meteorGrey_small1
+  rotate: false
+  xy: 746, 14
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+meteorGrey_small2
+  rotate: false
+  xy: 277, 2
+  size: 29, 26
+  orig: 29, 26
+  offset: 0, 0
+  index: -1
+meteorGrey_tiny1
+  rotate: false
+  xy: 924, 108
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+meteorGrey_tiny2
+  rotate: false
+  xy: 776, 27
+  size: 16, 15
+  orig: 16, 15
+  offset: 0, 0
+  index: -1

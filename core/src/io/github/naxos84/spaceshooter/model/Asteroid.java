@@ -3,6 +3,8 @@ package io.github.naxos84.spaceshooter.model;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
+import java.util.Random;
+
 public class Asteroid {
 
     private static final int MAX_HEALTH = 100;
@@ -11,11 +13,13 @@ public class Asteroid {
     private float speed = 200;
     private Rectangle rect;
     private int currentHealth;
+    private final int id;
 
-    public Asteroid(final float x, final float y, final float width, final float height, final int rotation) {
+    public Asteroid(final int id, final float x, final float y, final float width, final float height, final int rotation) {
         this.rect = new Rectangle(x, y, width, height);
         this.rotation = rotation;
         this.currentHealth = MAX_HEALTH;
+        this.id = id;
     }
 
     public void updatePosition(final float deltaTime) {
@@ -71,5 +75,9 @@ public class Asteroid {
 
     public boolean isDead() {
         return rect.x + rect.width < 0 || currentHealth == 0;
+    }
+
+    public int getId() {
+        return id;
     }
 }

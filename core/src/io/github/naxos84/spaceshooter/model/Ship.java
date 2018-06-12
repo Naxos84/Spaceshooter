@@ -9,7 +9,7 @@ public class Ship {
     public static final int MAX_HEALTH = 100;
     private static final int MIN_HEALTH = 0;
 
-    public static final int MAX_ENERGY = 100;
+    public static final int MAX_ENERGY = 300;
     private static final int MIN_ENERGY = 0;
 
     private float hSpeed = 200;
@@ -80,6 +80,14 @@ public class Ship {
         return currentHealth == 0;
     }
 
+    /**
+     * Convenient method to !{@link #isDead()}
+     * @return wether the ship is still alive
+     */
+    public boolean isAlive(){
+        return !isDead();
+    }
+
     public int getCurrentEnergy() {
         return energy;
     }
@@ -100,5 +108,10 @@ public class Ship {
 
     public Rectangle getCollisionBox() {
         return rect;
+    }
+
+    public void setPosition(final int x, final int y) {
+        this.rect.x = x;
+        this.rect.y = y;
     }
 }
