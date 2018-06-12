@@ -103,9 +103,21 @@ public class GameScreen implements Screen {
 
     private void spawnAsteroid() {
         int id = random.nextInt(asteroidsAtlasSize);
+        final String regionName = asteroidsAtlas.getRegions().get(id).name;
+        float asteroidHealth = 100f;
+        if (regionName.contains("big")) {
+            asteroidHealth = 7f;
+        } else if (regionName.contains("med")) {
+            asteroidHealth = 5f;
+        } else if (regionName.contains("small")) {
+            asteroidHealth = 3f;
+        } else if (regionName.contains("tiny")) {
+            asteroidHealth = 1f;
+        }
         float width = asteroidsAtlas.getRegions().get(id).getRegionWidth();
         float height = asteroidsAtlas.getRegions().get(id).getRegionHeight();
         Asteroid asteroid = new Asteroid(id, 810, MathUtils.random(10, 600 - height), width, height, MathUtils.random(360));
+        asteroid.setHealth(MathUtils.roundPositive(asteroidHealth));
         asteroids.add(asteroid);
         lastAsteroidSpawn = TimeUtils.nanoTime();
     }
@@ -239,7 +251,7 @@ public class GameScreen implements Screen {
     private void updateObjects(final float delta) {
         energyTimer += delta;
         if (energyTimer >= .1f) {
-            ship.addEnergy(3);
+            ship.addEnergy(5);
             energyTimer -= .1f;
         }
 
@@ -251,13 +263,13 @@ public class GameScreen implements Screen {
     }
 
     private void checkCollisions(final float delta) {
-        for (Iterator<Asteroid> asteroidsIterator = asteroids.iterator(); asteroidsIterator.hasNext(); ) {
+        for (Iterator<Asteroid> asteroidsIterator = new Array.ArrayIterator<>(asteroids); asteroidsIterator.hasNext(); ) {
             Asteroid asteroid = asteroidsIterator.next();
             asteroid.updatePosition(delta);
             if (asteroid.isDead()) {
                 asteroidsIterator.remove();
             } else if (ship.isAlive() && asteroid.overlaps(ship.getCollisionBox())) {
-                ship.reduceHealth(10);
+                ship.reduceHealth(asteroid.getCurrentHealth());
                 asteroidsIterator.remove();
                 effect.setPosition(asteroid.getX(), asteroid.getY());
                 effect.start();
@@ -267,8 +279,7 @@ public class GameScreen implements Screen {
             }
 
         }
-
-        for (Iterator<Laser> lasersIterator = lasers.iterator(); lasersIterator.hasNext(); ) {
+        for (Iterator<Laser> lasersIterator = new Array.ArrayIterator<>(lasers); lasersIterator.hasNext(); ) {
             Laser laser = lasersIterator.next();
             laser.updatePosition(delta);
             boolean laserRemoved = false;
@@ -276,16 +287,19 @@ public class GameScreen implements Screen {
                 lasersIterator.remove();
                 laserRemoved = true;
             }
-            for (Iterator<Asteroid> asteroidsIterator = asteroids.iterator(); asteroidsIterator.hasNext(); ) {
+            for (Iterator<Asteroid> asteroidsIterator = new Array.ArrayIterator<>(asteroids); asteroidsIterator.hasNext(); ) {
                 Asteroid asteroid = asteroidsIterator.next();
                 if (laser.overlaps(asteroid.getCollisionBox())) {
-                    effect.setPosition(asteroid.getX(), asteroid.getY());
-                    effect.start();
-                    score.add(1);
-                    if (game.getGamePreferences().isSoundEnabled()) {
-                        explosionSound.play(game.getGamePreferences().getSoundVolume());
+                    asteroid.reduceHealth(2);
+                    if (asteroid.isDead()) {
+                        effect.setPosition(asteroid.getX(), asteroid.getY());
+                        effect.start();
+                        score.add(1);
+                        if (game.getGamePreferences().isSoundEnabled()) {
+                            explosionSound.play(game.getGamePreferences().getSoundVolume());
+                        }
+                        asteroidsIterator.remove();
                     }
-                    asteroidsIterator.remove();
                     if (!laserRemoved) {
                         lasersIterator.remove();
                     }
