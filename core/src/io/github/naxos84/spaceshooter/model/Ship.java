@@ -15,7 +15,7 @@ public class Ship {
     private float hSpeed = 200;
     private float vSpeed = 200;
     private Rectangle rect;
-    private int currentHealth;
+    private float currentHealth;
     private int energy;
 
     public Ship(final float x, final float y, final float height, final float width) {
@@ -62,7 +62,7 @@ public class Ship {
         return rect.height;
     }
 
-    public int getCurrentHealth() {
+    public float getCurrentHealth() {
         return currentHealth;
     }
 
@@ -71,7 +71,7 @@ public class Ship {
         this.currentHealth = MathUtils.clamp(this.currentHealth, MIN_HEALTH, MAX_HEALTH);
     }
 
-    public void reduceHealth(int health) {
+    public void reduceHealth(float health) {
         this.currentHealth -= health;
         this.currentHealth = MathUtils.clamp(this.currentHealth, MIN_HEALTH, MAX_HEALTH);
     }
