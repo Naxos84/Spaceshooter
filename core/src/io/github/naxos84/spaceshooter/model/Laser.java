@@ -1,6 +1,5 @@
 package io.github.naxos84.spaceshooter.model;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import io.github.naxos84.spaceshooter.SpaceShooter;
 

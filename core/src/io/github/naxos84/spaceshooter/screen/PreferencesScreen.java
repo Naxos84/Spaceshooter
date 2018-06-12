@@ -24,6 +24,7 @@ public class PreferencesScreen implements Screen {
 
         stage = new Stage(new ScreenViewport());
     }
+
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);

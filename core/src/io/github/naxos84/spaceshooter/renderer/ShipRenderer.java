@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
-import io.github.naxos84.spaceshooter.model.Asteroid;
 import io.github.naxos84.spaceshooter.model.Ship;
 
 public class ShipRenderer {
@@ -24,6 +23,6 @@ public class ShipRenderer {
     }
 
     public void renderDebug(final ShapeRenderer renderer, final Ship ship) {
-        renderer.rect(ship.getX(),ship.getY() ,ship.getWidth() ,ship.getHeight() );
+        renderer.rect(ship.getX(), ship.getY(), ship.getWidth(), ship.getHeight());
     }
 }

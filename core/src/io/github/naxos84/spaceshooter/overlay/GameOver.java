@@ -30,7 +30,7 @@ public class GameOver {
     public void render(final SpriteBatch batch, final I18NBundle bundle, final float delta) {
         if (show) {
 
-            layout.setText(font, bundle.get("GAME_OVER"), Color.WHITE,0,  Align.center, false);
+            layout.setText(font, bundle.get("GAME_OVER"), Color.WHITE, 0, Align.center, false);
             font.draw(batch, layout, 800 / 2, 600 / 2 + layout.height / 2);
         }
     }

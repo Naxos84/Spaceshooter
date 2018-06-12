@@ -3,8 +3,6 @@ package io.github.naxos84.spaceshooter.model;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
-import java.util.Random;
-
 public class Asteroid {
 
     private static final int MAX_HEALTH = 100;

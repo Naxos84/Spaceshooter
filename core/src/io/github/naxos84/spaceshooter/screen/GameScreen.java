@@ -84,9 +84,9 @@ public class GameScreen implements Screen {
 
         ship = new Ship(800 / 2 - 64 / 2, 600 / 2 - 64 / 2, 64, 64);
 
-        asteroids = new Array<Asteroid>();
+        asteroids = new Array<>();
 
-        lasers = new Array<Laser>();
+        lasers = new Array<>();
 
 
         asteroidsAtlas = new TextureAtlas(Gdx.files.internal("textures/asteroids.atlas"));
@@ -105,7 +105,7 @@ public class GameScreen implements Screen {
         int id = random.nextInt(asteroidsAtlasSize);
         float width = asteroidsAtlas.getRegions().get(id).getRegionWidth();
         float height = asteroidsAtlas.getRegions().get(id).getRegionHeight();
-        Asteroid asteroid = new Asteroid(id,810, MathUtils.random(10, 600 - height), width, height, MathUtils.random(360));
+        Asteroid asteroid = new Asteroid(id, 810, MathUtils.random(10, 600 - height), width, height, MathUtils.random(360));
         asteroids.add(asteroid);
         lastAsteroidSpawn = TimeUtils.nanoTime();
     }
@@ -154,7 +154,7 @@ public class GameScreen implements Screen {
             game.batch.end();
             updateObjects(delta);
             checkCollisions(delta);
-            if( Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
                 resetGame();
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
                 quitGame();
@@ -198,12 +198,12 @@ public class GameScreen implements Screen {
         for (Laser laser : lasers) {
             laserRenderer.render(game.batch, laser);
         }
-        float healthBarWidth = (float)ship.getCurrentHealth() / Ship.MAX_HEALTH * 200f;
+        float healthBarWidth = (float) ship.getCurrentHealth() / Ship.MAX_HEALTH * 200f;
         game.batch.draw(healthBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 40, 6, 15);
         game.batch.draw(healthBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.HEIGHT - 40, healthBarWidth, 15);
         game.batch.draw(healthBarRight, SpaceShooter.SCREEN_WIDTH - 214 + healthBarWidth, SpaceShooter.HEIGHT - 40, 6, 15);
 
-        float energyBarWidth = (float)ship.getCurrentEnergy() / Ship.MAX_ENERGY * 200f;
+        float energyBarWidth = (float) ship.getCurrentEnergy() / Ship.MAX_ENERGY * 200f;
         game.batch.draw(energyBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 24, 6, 15);
         game.batch.draw(energyBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.HEIGHT - 24, energyBarWidth, 15);
         game.batch.draw(energyBarRight, SpaceShooter.SCREEN_WIDTH - 214 + energyBarWidth, SpaceShooter.HEIGHT - 24, 6, 15);

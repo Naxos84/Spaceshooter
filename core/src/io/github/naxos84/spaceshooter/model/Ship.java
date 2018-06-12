@@ -82,9 +82,10 @@ public class Ship {
 
     /**
      * Convenient method to !{@link #isDead()}
+     *
      * @return wether the ship is still alive
      */
-    public boolean isAlive(){
+    public boolean isAlive() {
         return !isDead();
     }
 
