@@ -15,17 +15,10 @@ public class AsteroidTest {
     }
 
     @Test
-    public void setHealthLargerThanMax() {
-        Asteroid asteroid = new Asteroid(1, 1, 1, 1, 1, 0);
-        asteroid.setHealth(Asteroid.MAX_HEALTH + 1);
-        assertThat(asteroid.getCurrentHealth()).isEqualTo(Asteroid.MAX_HEALTH);
-    }
-
-    @Test
     public void setHealthLessThanMin() {
         Asteroid asteroid = new Asteroid(1, 1, 1, 1, 1, 0);
-        asteroid.setHealth(Asteroid.MIN_HEALTH - 1);
-        assertThat(asteroid.getCurrentHealth()).isEqualTo(Asteroid.MIN_HEALTH);
+        asteroid.setHealth(-1);
+        assertThat(asteroid.getCurrentHealth()).isEqualTo(0);
     }
 
     @Test

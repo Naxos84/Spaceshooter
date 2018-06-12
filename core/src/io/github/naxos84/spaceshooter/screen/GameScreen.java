@@ -52,7 +52,7 @@ public class GameScreen implements Screen {
     private float energyTimer = 0f;
     private GameOver gameOver;
 
-    private TextureAtlas atlas;
+    private TextureAtlas barsAtlas;
     private TextureRegion healthBarLeft;
     private TextureRegion healthBarMid;
     private TextureRegion healthBarRight;
@@ -92,11 +92,11 @@ public class GameScreen implements Screen {
         asteroidsAtlas = new TextureAtlas(Gdx.files.internal("textures/asteroids.atlas"));
         asteroidsAtlasSize = asteroidsAtlas.getRegions().size;
 
-        shipRenderer = new ShipRenderer(shipImage);
-        asteroidsRenderer = new AsteroidRenderer(asteroidsAtlas.getRegions());
-        laserRenderer = new LaserRenderer(laserImage);
+        barsAtlas = new TextureAtlas(Gdx.files.internal("textures/bars.atlas"));
 
-        atlas = new TextureAtlas(Gdx.files.internal("textures/bars.atlas"));
+        shipRenderer = new ShipRenderer(shipImage);
+        asteroidsRenderer = new AsteroidRenderer(asteroidsAtlas.getRegions(), barsAtlas);
+        laserRenderer = new LaserRenderer(laserImage);
         gameOver = new GameOver();
 
     }
@@ -142,12 +142,12 @@ public class GameScreen implements Screen {
         score = new Score();
 
 
-        healthBarLeft = atlas.findRegion("barHorizontal_red_left");
-        healthBarMid = atlas.findRegion("barHorizontal_red_mid");
-        healthBarRight = atlas.findRegion("barHorizontal_red_right");
-        energyBarLeft = atlas.findRegion("barHorizontal_blue_left");
-        energyBarMid = atlas.findRegion("barHorizontal_blue_mid");
-        energyBarRight = atlas.findRegion("barHorizontal_blue_right");
+        healthBarLeft = barsAtlas.findRegion("barHorizontal_red_left");
+        healthBarMid = barsAtlas.findRegion("barHorizontal_red_mid");
+        healthBarRight = barsAtlas.findRegion("barHorizontal_red_right");
+        energyBarLeft = barsAtlas.findRegion("barHorizontal_blue_left");
+        energyBarMid = barsAtlas.findRegion("barHorizontal_blue_mid");
+        energyBarRight = barsAtlas.findRegion("barHorizontal_blue_right");
     }
 
     @Override
