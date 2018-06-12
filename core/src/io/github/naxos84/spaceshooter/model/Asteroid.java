@@ -1,12 +1,13 @@
 package io.github.naxos84.spaceshooter.model;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Asteroid {
 
-    private static final int MAX_HEALTH = 100;
-    private static final int MIN_HEALTH = 100;
+    public static final int MAX_HEALTH = 100;
+    static final int MIN_HEALTH = 0;
     private int rotation;
     private float speed = 200;
     private Rectangle rect;
@@ -48,9 +49,9 @@ public class Asteroid {
         return currentHealth;
     }
 
-    public void addHealth(final int health) {
+    public void setHealth(final int health) {
 
-        this.currentHealth += health;
+        this.currentHealth = health;
         this.currentHealth = MathUtils.clamp(this.currentHealth, MIN_HEALTH, MAX_HEALTH);
     }
 

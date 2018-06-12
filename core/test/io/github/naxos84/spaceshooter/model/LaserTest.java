@@ -1,4 +1,4 @@
-package com.github.naxos84.spaceshooter.model;
+package io.github.naxos84.spaceshooter.model;
 
 import org.junit.Test;
 
