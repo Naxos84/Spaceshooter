@@ -32,32 +32,28 @@ public class SpaceshooterAssetManager {
 
     private final String skinPath = "skin/kenney/kenney-test2.json";
 
+    public void loadInitialAssets() {
 
-    public void loadAssets() {
-        loadTextures();
-        loadSounds();
-        loadMusic();
-        loadSkins();
     }
 
-    private void loadTextures() {
+    public void loadTextures() {
         manager.load(shipTexturePath, Texture.class);
         manager.load(laserTexturePath, Texture.class);
         manager.load(asteroidsAtlasPath, TextureAtlas.class);
         manager.load(barsAtlasPath, TextureAtlas.class);
     }
 
-    private void loadSounds() {
+    public void loadSounds() {
         manager.load(laserSoundPath, Sound.class);
         manager.load(asteroidExplosionSoundPath, Sound.class);
     }
 
-    private void loadMusic() {
+    public void loadMusic() {
         manager.load(menuMusicPath, Music.class);
         manager.load(gameMusicPath, Music.class);
     }
 
-    private void loadSkins() {
+    public void loadSkins() {
         manager.load(skinPath, Skin.class);
     }
 
