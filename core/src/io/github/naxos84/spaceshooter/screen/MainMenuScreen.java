@@ -1,5 +1,6 @@
 package io.github.naxos84.spaceshooter.screen;
 
+import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -12,6 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.naxos84.spaceshooter.SpaceShooter;
+import io.github.naxos84.spaceshooter.manager.AudioManager;
+import io.github.naxos84.spaceshooter.manager.ScreenManager;
 
 import java.util.Locale;
 
@@ -25,34 +28,33 @@ public class MainMenuScreen implements Screen {
     private TextButton startGame;
     private TextButton preferences;
     private TextButton exitGame;
+    private final AudioManager audioManager;
 
     public MainMenuScreen(final SpaceShooter game, final boolean debugMode) {
         this.game = game;
         this.debugMode = debugMode;
 
         stage = new Stage(new ScreenViewport());
+        this.audioManager = game.getAudioManager();
     }
 
     @Override
     public void show() {
-        //Gdx.app.getPreferences("MY_PREFS").putString("LAST_START", "now").flush();
-
-
         Gdx.input.setInputProcessor(stage);
+        stage.clear();
         Table table = new Table();
         table.setFillParent(true);
         table.setDebug(debugMode);
 
         stage.addActor(table);
 
-        final Skin skin = new Skin(Gdx.files.internal("skin/kenney/kenney-test2.json")); //star-soldier/star-soldier-ui.json"));
+        final Skin skin = game.getAssetManager().getUiSkin();
 
         startGame = new TextButton(game.bundle.get("KEY_START_GAME"), skin);
         startGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new GameScreen(game, debugMode));
-                dispose();
+                game.changeScreen(ScreenManager.GAME);
             }
         });
 
@@ -60,8 +62,7 @@ public class MainMenuScreen implements Screen {
         preferences.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new PreferencesScreen(game, debugMode));
-                dispose();
+                game.changeScreen(ScreenManager.PREFERENCES);
             }
         });
 
@@ -79,7 +80,7 @@ public class MainMenuScreen implements Screen {
         table.row();
         table.add(exitGame).fillX().uniformX();
 
-        game.playMenuMusic();
+        audioManager.playMenuMusic();
 
     }
 
@@ -104,6 +105,7 @@ public class MainMenuScreen implements Screen {
     private void changeLocale(final Locale locale) {
         game.setLocale(locale);
         startGame.setText(game.bundle.get("KEY_START_GAME"));
+        preferences.setText(game.bundle.get("KEY_PREFERENCES"));
         exitGame.setText(game.bundle.get("KEY_EXIT_GAME"));
     }
 

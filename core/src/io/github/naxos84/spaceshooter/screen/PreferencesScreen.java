@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.naxos84.spaceshooter.SpaceShooter;
+import io.github.naxos84.spaceshooter.manager.ScreenManager;
 
 public class PreferencesScreen implements Screen {
 
@@ -27,6 +28,7 @@ public class PreferencesScreen implements Screen {
 
     @Override
     public void show() {
+        stage.clear();
         Gdx.input.setInputProcessor(stage);
         Table table = new Table();
         table.setFillParent(true);
@@ -42,6 +44,7 @@ public class PreferencesScreen implements Screen {
             @Override
             public boolean handle(Event event) {
                 game.getGamePreferences().setMusicVolume(musicVolume.getValue());
+                game.getAudioManager().setMusicVolume(musicVolume.getValue());
                 return false;
             }
         });
@@ -62,6 +65,7 @@ public class PreferencesScreen implements Screen {
             @Override
             public boolean handle(Event event) {
                 game.getGamePreferences().setSoundVolume(soundVolume.getValue());
+                game.getAudioManager().setSoundVolume(soundVolume.getValue());
                 return false;
             }
         });
@@ -79,8 +83,7 @@ public class PreferencesScreen implements Screen {
         back.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new MainMenuScreen(game, debugMode));
-                dispose();
+                game.changeScreen(ScreenManager.MENU);
             }
         });
 
@@ -93,8 +96,6 @@ public class PreferencesScreen implements Screen {
         table.add(soundEnabled).fill().uniformX();
         table.row();
         table.add(back).fill().uniformX();
-
-        game.playMenuMusic();
     }
 
     @Override

@@ -1,21 +1,21 @@
 package io.github.naxos84.spaceshooter.renderer;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
+import io.github.naxos84.spaceshooter.manager.SpaceshooterAssetManager;
 import io.github.naxos84.spaceshooter.model.Asteroid;
 
 public class AsteroidRenderer {
 
-    private Array<TextureAtlas.AtlasRegion> asteroidsRegions;
-    private TextureRegion healthBarMid;
+    private final Array<TextureAtlas.AtlasRegion> asteroidsRegions;
+    private final TextureRegion healthBarMid;
 
-    public AsteroidRenderer(final Array<TextureAtlas.AtlasRegion> asteroidsRegions, final TextureAtlas barsAtlas) {
-        this.asteroidsRegions = asteroidsRegions;
-        healthBarMid = barsAtlas.findRegion("barHorizontal_red_mid");
+    public AsteroidRenderer(final SpaceshooterAssetManager assetManager) {
+        asteroidsRegions = assetManager.getAsteroidsAtlas().getRegions();
+        healthBarMid = assetManager.getHealthBarMid();
     }
 
     public void render(final SpriteBatch batch, final Asteroid asteroid) {

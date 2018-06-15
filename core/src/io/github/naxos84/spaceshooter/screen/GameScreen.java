@@ -3,19 +3,20 @@ package io.github.naxos84.spaceshooter.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import io.github.naxos84.spaceshooter.SpaceShooter;
+import io.github.naxos84.spaceshooter.controller.KeyboardController;
+import io.github.naxos84.spaceshooter.manager.AudioManager;
+import io.github.naxos84.spaceshooter.manager.ScreenManager;
+import io.github.naxos84.spaceshooter.manager.SpaceshooterAssetManager;
 import io.github.naxos84.spaceshooter.model.Asteroid;
 import io.github.naxos84.spaceshooter.model.Laser;
 import io.github.naxos84.spaceshooter.model.Score;
@@ -32,13 +33,11 @@ public class GameScreen implements Screen {
 
     private final SpaceShooter game;
     private final boolean debugMode;
-    private Texture shipImage;
+    private final SpaceshooterAssetManager assetManager;
+    private final Random random = new Random();
+    private final KeyboardController keyboardController = new KeyboardController();
     private Ship ship;
     private ShipRenderer shipRenderer;
-    private Texture asteroidTex;
-    private Texture laserImage;
-    private Sound shootSound;
-    private Sound explosionSound;
     private OrthographicCamera camera;
     private Array<Asteroid> asteroids;
     private AsteroidRenderer asteroidsRenderer;
@@ -51,33 +50,23 @@ public class GameScreen implements Screen {
     private Score score;
     private float energyTimer = 0f;
     private GameOver gameOver;
-
-    private TextureAtlas barsAtlas;
     private TextureRegion healthBarLeft;
     private TextureRegion healthBarMid;
     private TextureRegion healthBarRight;
     private TextureRegion energyBarLeft;
     private TextureRegion energyBarMid;
     private TextureRegion energyBarRight;
-
-    private TextureAtlas asteroidsAtlas;
-    private int asteroidsAtlasSize;
-
-    private final Random random = new Random();
+    private final AudioManager audioManager;
 
 
-    public GameScreen(final SpaceShooter game, final boolean debugMode) {
+    public GameScreen(final SpaceShooter game, AudioManager audioManager,  final boolean debugMode) {
         this.game = game;
         this.debugMode = debugMode;
+        this.assetManager = game.getAssetManager();
 
         sRenderer = new ShapeRenderer();
 
         Gdx.app.log("SpaceShooter", "creating things.");
-        shipImage = new Texture("images/player/playerShip1_blue.png");
-        asteroidTex = new Texture("images/meteors/meteorBrown_big1.png");
-        laserImage = new Texture("images/lasers/laserBlue01.png");
-        shootSound = Gdx.audio.newSound(Gdx.files.internal("audio/laser5.ogg"));
-        explosionSound = Gdx.audio.newSound(Gdx.files.internal("audio/explosion_asteroid.ogg"));
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 600);
@@ -89,21 +78,14 @@ public class GameScreen implements Screen {
         lasers = new Array<>();
 
 
-        asteroidsAtlas = new TextureAtlas(Gdx.files.internal("textures/asteroids.atlas"));
-        asteroidsAtlasSize = asteroidsAtlas.getRegions().size;
-
-        barsAtlas = new TextureAtlas(Gdx.files.internal("textures/bars.atlas"));
-
-        shipRenderer = new ShipRenderer(shipImage);
-        asteroidsRenderer = new AsteroidRenderer(asteroidsAtlas.getRegions(), barsAtlas);
-        laserRenderer = new LaserRenderer(laserImage);
         gameOver = new GameOver();
+        this.audioManager = audioManager;
 
     }
 
     private void spawnAsteroid() {
-        int id = random.nextInt(asteroidsAtlasSize);
-        final String regionName = asteroidsAtlas.getRegions().get(id).name;
+        int id = random.nextInt(assetManager.getNumberOfAsteroids());
+        final String regionName = assetManager.getAsteroid(id).name;
         float asteroidHealth = 100f;
         if (regionName.contains("big")) {
             asteroidHealth = 7f;
@@ -114,8 +96,8 @@ public class GameScreen implements Screen {
         } else if (regionName.contains("tiny")) {
             asteroidHealth = 1f;
         }
-        float width = asteroidsAtlas.getRegions().get(id).getRegionWidth();
-        float height = asteroidsAtlas.getRegions().get(id).getRegionHeight();
+        float width = assetManager.getAsteroid(id).getRegionWidth();
+        float height = assetManager.getAsteroid(id).getRegionHeight();
         Asteroid asteroid = new Asteroid(id, 810, MathUtils.random(10, 600 - height), width, height, MathUtils.random(360));
         asteroid.setHealth(MathUtils.roundPositive(asteroidHealth));
         asteroids.add(asteroid);
@@ -129,25 +111,32 @@ public class GameScreen implements Screen {
             lastLaserSpawn = TimeUtils.nanoTime();
             ship.reduceEnergy(10);
             if (game.getGamePreferences().isSoundEnabled()) {
-                shootSound.play(game.getGamePreferences().getSoundVolume());
+                assetManager.getLaserSound().play(game.getGamePreferences().getSoundVolume());
             }
         }
     }
 
     @Override
     public void show() {
+        shipRenderer = new ShipRenderer(assetManager);
+        laserRenderer = new LaserRenderer(assetManager);
+        asteroidsRenderer = new AsteroidRenderer(assetManager);
+
+
+        Gdx.input.setInputProcessor(keyboardController);
         effect = new ParticleEffect();
         effect.load(Gdx.files.internal("images/particles/meteor_explosion.p"), Gdx.files.internal("images/meteors"));
-        game.playGameMusic();
+        audioManager.playGameMusic();
         score = new Score();
 
 
-        healthBarLeft = barsAtlas.findRegion("barHorizontal_red_left");
-        healthBarMid = barsAtlas.findRegion("barHorizontal_red_mid");
-        healthBarRight = barsAtlas.findRegion("barHorizontal_red_right");
-        energyBarLeft = barsAtlas.findRegion("barHorizontal_blue_left");
-        energyBarMid = barsAtlas.findRegion("barHorizontal_blue_mid");
-        energyBarRight = barsAtlas.findRegion("barHorizontal_blue_right");
+        healthBarLeft = assetManager.getHealthBarLeft();
+        healthBarMid = assetManager.getHealthBarMid();
+        healthBarRight = assetManager.getHealthBarRight();
+        energyBarLeft = assetManager.getEnergyBarLeft();
+        energyBarMid = assetManager.getEnergyBarMid();
+        energyBarRight = assetManager.getEnergyBarRight();
+        resetGame();
     }
 
     @Override
@@ -222,28 +211,28 @@ public class GameScreen implements Screen {
     }
 
     private void handleInput(final float delta) {
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        if (keyboardController.isLeftPressed()) {
             ship.moveLeft(delta);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        if (keyboardController.isRightPressed()) {
             ship.moveRight(delta);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+        if (keyboardController.isUpPressed()) {
             ship.moveUp(delta);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+        if (keyboardController.isDownPressed()) {
             ship.moveDown(delta);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+        if (keyboardController.isSpacePressed()) {
             if (TimeUtils.nanoTime() - lastLaserSpawn > 100000000) {
                 spawnLaser();
             }
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+        if (keyboardController.isEscapePressed()) {
             quitGame();
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0)) {
+        if (keyboardController.isNumpad0Pressed()) {
             spawnAsteroid();
         }
     }
@@ -274,7 +263,7 @@ public class GameScreen implements Screen {
                 effect.setPosition(asteroid.getX(), asteroid.getY());
                 effect.start();
                 if (game.getGamePreferences().isSoundEnabled()) {
-                    explosionSound.play(game.getGamePreferences().getSoundVolume());
+                    assetManager.getAsteroidExplosion().play(game.getGamePreferences().getSoundVolume());
                 }
             }
 
@@ -296,7 +285,7 @@ public class GameScreen implements Screen {
                         effect.start();
                         score.add(1);
                         if (game.getGamePreferences().isSoundEnabled()) {
-                            explosionSound.play(game.getGamePreferences().getSoundVolume());
+                            assetManager.getAsteroidExplosion().play(game.getGamePreferences().getSoundVolume());
                         }
                         asteroidsIterator.remove();
                     }
@@ -313,8 +302,7 @@ public class GameScreen implements Screen {
     }
 
     private void quitGame() {
-        game.setScreen(new MainMenuScreen(game, debugMode));
-        dispose();
+        game.changeScreen(ScreenManager.MENU);
     }
 
     private void resetGame() {
@@ -343,17 +331,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void hide() {
-        explosionSound.stop();
-        shootSound.stop();
+        assetManager.getAsteroidExplosion().stop();
+        assetManager.getLaserSound().stop();
     }
 
     @Override
     public void dispose() {
-        shipImage.dispose();
-        asteroidTex.dispose();
-        laserImage.dispose();
-        explosionSound.dispose();
-        shootSound.dispose();
+        assetManager.dispose();
         effect.dispose();
     }
 }
