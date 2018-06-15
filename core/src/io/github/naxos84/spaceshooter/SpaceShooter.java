@@ -53,11 +53,11 @@ public class SpaceShooter extends Game {
 
     @Override
     public void create() {
-        screenManager.loadScreens(this, debugMode);
 
 
         batch = new SpriteBatch();
-        font = new BitmapFont();
+        font = new BitmapFont(Gdx.files.internal("skin/kenney/kenney-future2.fnt"));
+        screenManager.loadScreens(this, debugMode);
         baseFileHandle = Gdx.files.internal("i18n/lang");
         bundle = I18NBundle.createBundle(baseFileHandle, locale);
         this.setScreen(screenManager.getScreen(ScreenManager.LOADING));
