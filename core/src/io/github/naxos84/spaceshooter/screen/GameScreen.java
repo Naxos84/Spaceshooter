@@ -17,17 +17,16 @@ import io.github.naxos84.spaceshooter.controller.KeyboardController;
 import io.github.naxos84.spaceshooter.manager.AudioManager;
 import io.github.naxos84.spaceshooter.manager.ScreenManager;
 import io.github.naxos84.spaceshooter.manager.SpaceshooterAssetManager;
-import io.github.naxos84.spaceshooter.model.Asteroid;
-import io.github.naxos84.spaceshooter.model.Laser;
-import io.github.naxos84.spaceshooter.model.Score;
-import io.github.naxos84.spaceshooter.model.Ship;
+import io.github.naxos84.spaceshooter.model.*;
 import io.github.naxos84.spaceshooter.overlay.GameOver;
 import io.github.naxos84.spaceshooter.renderer.AsteroidRenderer;
+import io.github.naxos84.spaceshooter.renderer.EnemyRenderer;
 import io.github.naxos84.spaceshooter.renderer.LaserRenderer;
 import io.github.naxos84.spaceshooter.renderer.ShipRenderer;
 
 import java.util.Iterator;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 public class GameScreen implements Screen {
 
@@ -43,6 +42,8 @@ public class GameScreen implements Screen {
     private AsteroidRenderer asteroidsRenderer;
     private long lastAsteroidSpawn;
     private Array<Laser> lasers;
+    private Array<Laser> enemyLasers;
+    private Array<Enemy> enemies;
     private LaserRenderer laserRenderer;
     private long lastLaserSpawn;
     private ParticleEffect effect;
@@ -57,6 +58,8 @@ public class GameScreen implements Screen {
     private TextureRegion energyBarMid;
     private TextureRegion energyBarRight;
     private final AudioManager audioManager;
+    private EnemyRenderer enemyRenderer;
+    private int spawnCount = 0;
 
 
     public GameScreen(final SpaceShooter game, AudioManager audioManager,  final boolean debugMode) {
@@ -74,13 +77,33 @@ public class GameScreen implements Screen {
         ship = new Ship(800 / 2 - 64 / 2, 600 / 2 - 64 / 2, 64, 64);
 
         asteroids = new Array<>();
-
         lasers = new Array<>();
-
+        enemies = new Array<>();
 
         gameOver = new GameOver();
         this.audioManager = audioManager;
 
+    }
+
+    private void spawnHazard() {
+        if (spawnCount > 10) {
+            spawnEnemy();
+            spawnCount = 0;
+        } else {
+            spawnAsteroid();
+        }
+        lastAsteroidSpawn = TimeUtils.millis();
+        spawnCount++;
+    }
+
+    private void spawnEnemy() {
+        int id = random.nextInt(assetManager.getNumberOfEnemies());
+        final String regionName = assetManager.getEnemy(id).name;
+        float width = assetManager.getEnemy(id).getRegionWidth();
+        float height = assetManager.getEnemy(id).getRegionHeight();
+        Enemy enemy = new Enemy(id, 810, MathUtils.random(10, 600 - height), width - 10, height - 10, MathUtils.random(360));
+        enemy.setHealth(10);
+        enemies.add(enemy);
     }
 
     private void spawnAsteroid() {
@@ -101,7 +124,6 @@ public class GameScreen implements Screen {
         Asteroid asteroid = new Asteroid(id, 810, MathUtils.random(10, 600 - height), width, height, MathUtils.random(360));
         asteroid.setHealth(MathUtils.roundPositive(asteroidHealth));
         asteroids.add(asteroid);
-        lastAsteroidSpawn = TimeUtils.nanoTime();
     }
 
     private void spawnLaser() {
@@ -121,7 +143,7 @@ public class GameScreen implements Screen {
         shipRenderer = new ShipRenderer(assetManager);
         laserRenderer = new LaserRenderer(assetManager);
         asteroidsRenderer = new AsteroidRenderer(assetManager);
-
+        enemyRenderer = new EnemyRenderer(assetManager);
 
         Gdx.input.setInputProcessor(keyboardController);
         effect = new ParticleEffect();
@@ -185,6 +207,9 @@ public class GameScreen implements Screen {
             for (Laser laser : lasers) {
                 laserRenderer.renderDebug(sRenderer, laser);
             }
+            for (Enemy enemy : enemies) {
+                enemyRenderer.renderDebug(sRenderer, enemy);
+            }
         }
         sRenderer.end();
     }
@@ -199,6 +224,10 @@ public class GameScreen implements Screen {
         for (Laser laser : lasers) {
             laserRenderer.render(game.batch, laser);
         }
+        for (final Enemy enemy : enemies) {
+            enemyRenderer.render(game.batch, enemy);
+        }
+
         float healthBarWidth = (float) ship.getCurrentHealth() / Ship.MAX_HEALTH * 200f;
         game.batch.draw(healthBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.HEIGHT - 40, 6, 15);
         game.batch.draw(healthBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.HEIGHT - 40, healthBarWidth, 15);
@@ -246,8 +275,8 @@ public class GameScreen implements Screen {
 
         ship.updatePosition();
 
-        if (TimeUtils.nanoTime() - lastAsteroidSpawn > 500000000) {
-            spawnAsteroid();
+        if (TimeUtils.millis() - lastAsteroidSpawn > 500) {
+            spawnHazard();
         }
     }
 
@@ -267,6 +296,22 @@ public class GameScreen implements Screen {
                 }
             }
 
+        }
+
+        for (Iterator<Enemy> enemiesIterator = new Array.ArrayIterator<>(enemies); enemiesIterator.hasNext(); ) {
+            Enemy enemy = enemiesIterator.next();
+            enemy.updatePosition(delta);
+            if (enemy.isDead()) {
+                enemiesIterator.remove();
+            } else if (ship.isAlive() && enemy.overlaps(ship.getCollisionBox())) {
+                ship.reduceHealth(enemy.getCurrentHealth());
+                enemiesIterator.remove();
+                effect.setPosition(enemy.getX(), enemy.getY());
+                effect.start();
+                if (game.getGamePreferences().isSoundEnabled()) {
+                    assetManager.getAsteroidExplosion().play(game.getGamePreferences().getSoundVolume());
+                }
+            }
         }
         for (Iterator<Laser> lasersIterator = new Array.ArrayIterator<>(lasers); lasersIterator.hasNext(); ) {
             Laser laser = lasersIterator.next();
@@ -291,6 +336,26 @@ public class GameScreen implements Screen {
                     }
                     if (!laserRemoved) {
                         lasersIterator.remove();
+                        laserRemoved = true;
+                    }
+                }
+            }
+            for (Iterator<Enemy> enemyIterator = new Array.ArrayIterator<>(enemies); enemyIterator.hasNext(); ) {
+                Enemy enemy = enemyIterator.next();
+                if (laser.overlaps(enemy.getCollisionBox())) {
+                    enemy.reduceHealth(2);
+                    if (enemy.isDead()) {
+                        effect.setPosition(enemy.getX(), enemy.getY());
+                        effect.start();
+                        score.add(1);
+                        if (game.getGamePreferences().isSoundEnabled()) {
+                            assetManager.getAsteroidExplosion().play(game.getGamePreferences().getSoundVolume());
+                        }
+                        enemyIterator.remove();
+                    }
+                    if (!laserRemoved) {
+                        lasersIterator.remove();
+                        laserRemoved = true;
                     }
                 }
             }
@@ -312,6 +377,7 @@ public class GameScreen implements Screen {
         asteroids.clear();
         lasers.clear();
         score.reset();
+        enemies.clear();
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class SpaceshooterAssetManager {
@@ -23,6 +22,7 @@ public class SpaceshooterAssetManager {
 
     private final String asteroidsAtlasPath = "textures/asteroids.atlas";
     private final String barsAtlasPath = "textures/bars.atlas";
+    private final String enemiesAtlasPath = "textures/enemies.atlas";
     private final String healthBarLeftRegion = "barHorizontal_red_left";
     private final String healthBarMidRegion = "barHorizontal_red_mid";
     private final String healthBarRightRegion = "barHorizontal_red_right";
@@ -41,6 +41,7 @@ public class SpaceshooterAssetManager {
         manager.load(laserTexturePath, Texture.class);
         manager.load(asteroidsAtlasPath, TextureAtlas.class);
         manager.load(barsAtlasPath, TextureAtlas.class);
+        manager.load(enemiesAtlasPath, TextureAtlas.class);
     }
 
     public void loadSounds() {
@@ -115,6 +116,18 @@ public class SpaceshooterAssetManager {
 
     public TextureAtlas.AtlasRegion getEnergyBarRight() {
         return getBarsAtlas().findRegion(energyBarRightRegion);
+    }
+
+    public TextureAtlas getEnemiesAtlas() {
+        return manager.get(enemiesAtlasPath);
+    }
+
+    public int getNumberOfEnemies() {
+        return getEnemiesAtlas().getRegions().size;
+    }
+
+    public TextureAtlas.AtlasRegion getEnemy(final int index) {
+        return getEnemiesAtlas().getRegions().get(index);
     }
 
     public Music getMenuMusic() {
