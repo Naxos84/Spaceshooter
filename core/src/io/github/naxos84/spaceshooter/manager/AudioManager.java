@@ -21,13 +21,15 @@ public class AudioManager {
 
     public void load() {
         gameMusic = assetManager.getGameMusic();
+        gameMusic.setLooping(true);
         menuMusic = assetManager.getMenuMusic();
+        menuMusic.setLooping(true);
     }
 
     public void playMenuMusic() {
         if (game.getGamePreferences().isMusicEnabled()) {
             if (!menuMusic.isPlaying()) {
-                gameMusic.play();
+                gameMusic.stop();
                 menuMusic.setVolume(game.getGamePreferences().getMusicVolume());
                 menuMusic.play();
             }
