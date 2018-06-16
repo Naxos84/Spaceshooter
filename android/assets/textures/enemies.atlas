@@ -1,0 +1,41 @@
+
+enemies.png
+size: 512,128
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+enemyBlack1
+  rotate: false
+  xy: 260, 13
+  size: 84, 93
+  orig: 84, 93
+  offset: 0, 0
+  index: -1
+enemyBlack2
+  rotate: false
+  xy: 2, 2
+  size: 84, 104
+  orig: 84, 104
+  offset: 0, 0
+  index: -1
+enemyBlack3
+  rotate: false
+  xy: 88, 3
+  size: 84, 103
+  orig: 84, 103
+  offset: 0, 0
+  index: -1
+enemyBlack4
+  rotate: false
+  xy: 346, 24
+  size: 84, 82
+  orig: 84, 82
+  offset: 0, 0
+  index: -1
+enemyBlack5
+  rotate: false
+  xy: 174, 9
+  size: 84, 97
+  orig: 84, 97
+  offset: 0, 0
+  index: -1
