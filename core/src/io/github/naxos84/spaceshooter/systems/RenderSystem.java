@@ -5,10 +5,13 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 import io.github.naxos84.spaceshooter.components.PositionComponent;
+import io.github.naxos84.spaceshooter.components.SizeComponent;
 import io.github.naxos84.spaceshooter.components.TextureComponent;
 
 import java.util.Comparator;
@@ -16,14 +19,14 @@ import java.util.Comparator;
 public class RenderSystem extends IteratingSystem {
 
     private SpriteBatch batch;
+    private ShapeRenderer shapeRenderer;
     private Array<Entity> renderQueue;
-    private Comparator<Entity> comparator;
     private OrthographicCamera camera;
 
     private ComponentMapper<TextureComponent> textureMapper;
     private ComponentMapper<PositionComponent> positionMapper;
 
-    public RenderSystem(final SpriteBatch batch) {
+    public RenderSystem(final SpriteBatch batch, final ShapeRenderer shapeRenderer) {
         super(Family.all(PositionComponent.class, TextureComponent.class).get());
 
         textureMapper = ComponentMapper.getFor(TextureComponent.class);
@@ -31,6 +34,7 @@ public class RenderSystem extends IteratingSystem {
 
         renderQueue = new Array<>();
         this.batch = batch;
+        this.shapeRenderer = shapeRenderer;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 800, 600);
     }
@@ -45,6 +49,7 @@ public class RenderSystem extends IteratingSystem {
         for (Entity entity : renderQueue) {
             TextureComponent texture = textureMapper.get(entity);
             PositionComponent position = positionMapper.get(entity);
+            SizeComponent size = entity.getComponent(SizeComponent.class);
 
             if (texture.region == null || position.isHidden) {
                 continue;
@@ -56,10 +61,31 @@ public class RenderSystem extends IteratingSystem {
             float originX = width / 2f;
             float originY = height / 2f;
 
-            batch.draw(texture.region, position.x, position.y, originX, originY, width, height,1,1, 0f);
+            batch.draw(texture.region, position.x, position.y, originX, originY, size == null ? width : size.getWidth(), size == null ? height : size.getHeight(),1,1, 0f);
 
         }
         batch.end();
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.begin();
+        for (Entity entity : renderQueue) {
+            TextureComponent texture = textureMapper.get(entity);
+            PositionComponent position = positionMapper.get(entity);
+            SizeComponent size = entity.getComponent(SizeComponent.class);
+
+            if (texture.region == null || position.isHidden) {
+                continue;
+            }
+
+            float width = texture.region.getRegionWidth();
+            float height = texture.region.getRegionHeight();
+
+            float originX = width / 2f;
+            float originY = height / 2f;
+
+            shapeRenderer.rect(position.x, position.y, size == null ? width : size.getWidth(), size == null ? height : size.getHeight());
+
+        }
+        shapeRenderer.end();
         renderQueue.clear();
     }
 

@@ -4,7 +4,14 @@ import com.badlogic.ashley.core.Component;
 
 public class PositionComponent implements Component {
 
-    public float x;
-    public float y;
+    public int x;
+    public int y;
     public boolean isHidden;
+
+    public PositionComponent(final int x, final int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+
 }

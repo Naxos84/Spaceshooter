@@ -27,7 +27,7 @@ public class Ship {
 
     public void updatePosition() {
         rect.x = MathUtils.clamp(rect.x, 0, SpaceShooter.SCREEN_WIDTH - rect.width);
-        rect.y = MathUtils.clamp(rect.y, 0, SpaceShooter.HEIGHT - rect.height);
+        rect.y = MathUtils.clamp(rect.y, 0, SpaceShooter.SCREEN_HEIGHT - rect.height);
     }
 
     public void moveLeft(final float delta) {

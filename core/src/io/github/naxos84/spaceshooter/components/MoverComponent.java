@@ -2,7 +2,15 @@ package io.github.naxos84.spaceshooter.components;
 
 import com.badlogic.ashley.core.Component;
 
-public class MoverComponent implements Component {
+class MoverComponent implements Component {
 
-    public float speed;
+    private float speed;
+
+    public MoverComponent(final float speed) {
+        this.speed = speed;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
 }
