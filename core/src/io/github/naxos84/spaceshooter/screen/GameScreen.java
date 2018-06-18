@@ -1,5 +1,8 @@
 package io.github.naxos84.spaceshooter.screen;
 
+import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -13,6 +16,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import io.github.naxos84.spaceshooter.SpaceShooter;
+import io.github.naxos84.spaceshooter.components.PlayerComponent;
+import io.github.naxos84.spaceshooter.components.PositionComponent;
+import io.github.naxos84.spaceshooter.components.TextureComponent;
 import io.github.naxos84.spaceshooter.controller.KeyboardController;
 import io.github.naxos84.spaceshooter.manager.AudioManager;
 import io.github.naxos84.spaceshooter.manager.ScreenManager;
@@ -23,6 +29,9 @@ import io.github.naxos84.spaceshooter.renderer.AsteroidRenderer;
 import io.github.naxos84.spaceshooter.renderer.EnemyRenderer;
 import io.github.naxos84.spaceshooter.renderer.LaserRenderer;
 import io.github.naxos84.spaceshooter.renderer.ShipRenderer;
+import io.github.naxos84.spaceshooter.systems.HazardControlSystem;
+import io.github.naxos84.spaceshooter.systems.PlayerControlSystem;
+import io.github.naxos84.spaceshooter.systems.RenderSystem;
 
 import java.util.Iterator;
 import java.util.Random;
@@ -62,6 +71,11 @@ public class GameScreen implements Screen {
     private int spawnCount = 0;
 
 
+
+
+    private Engine engine;
+
+
     public GameScreen(final SpaceShooter game, AudioManager audioManager,  final boolean debugMode) {
         this.game = game;
         this.debugMode = debugMode;
@@ -83,6 +97,23 @@ public class GameScreen implements Screen {
         gameOver = new GameOver();
         this.audioManager = audioManager;
 
+
+    }
+
+    private void createPlayer() {
+        Entity entity = new Entity();
+        PositionComponent positionComponent = new PositionComponent();
+        TextureComponent textureComponent = new TextureComponent();
+
+        textureComponent.region = new TextureRegion(assetManager.getShipTexture());
+        positionComponent.x = 400;
+        positionComponent.y = 300;
+        positionComponent.isHidden = false;
+
+        entity.add(positionComponent);
+        entity.add(textureComponent);
+
+        engine.addEntity(entity);
     }
 
     private void spawnHazard() {
@@ -140,25 +171,33 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-        shipRenderer = new ShipRenderer(assetManager);
-        laserRenderer = new LaserRenderer(assetManager);
-        asteroidsRenderer = new AsteroidRenderer(assetManager);
-        enemyRenderer = new EnemyRenderer(assetManager);
-
         Gdx.input.setInputProcessor(keyboardController);
-        effect = new ParticleEffect();
-        effect.load(Gdx.files.internal("images/particles/meteor_explosion.p"), Gdx.files.internal("images/meteors"));
-        audioManager.playGameMusic();
-        score = new Score();
+        RenderSystem renderSystem = new RenderSystem(game.batch);
+        engine = new PooledEngine();
+        engine.addSystem(renderSystem);
+        engine.addSystem(new PlayerControlSystem(keyboardController));
+        engine.addSystem(new HazardControlSystem());
+        createPlayer();
 
-
-        healthBarLeft = assetManager.getHealthBarLeft();
-        healthBarMid = assetManager.getHealthBarMid();
-        healthBarRight = assetManager.getHealthBarRight();
-        energyBarLeft = assetManager.getEnergyBarLeft();
-        energyBarMid = assetManager.getEnergyBarMid();
-        energyBarRight = assetManager.getEnergyBarRight();
-        resetGame();
+//        shipRenderer = new ShipRenderer(assetManager);
+//        laserRenderer = new LaserRenderer(assetManager);
+//        asteroidsRenderer = new AsteroidRenderer(assetManager);
+//        enemyRenderer = new EnemyRenderer(assetManager);
+//
+//        Gdx.input.setInputProcessor(keyboardController);
+//        effect = new ParticleEffect();
+//        effect.load(Gdx.files.internal("images/particles/meteor_explosion.p"), Gdx.files.internal("images/meteors"));
+//        audioManager.playGameMusic();
+//        score = new Score();
+//
+//
+//        healthBarLeft = assetManager.getHealthBarLeft();
+//        healthBarMid = assetManager.getHealthBarMid();
+//        healthBarRight = assetManager.getHealthBarRight();
+//        energyBarLeft = assetManager.getEnergyBarLeft();
+//        energyBarMid = assetManager.getEnergyBarMid();
+//        energyBarRight = assetManager.getEnergyBarRight();
+//        resetGame();
     }
 
     @Override
@@ -166,33 +205,36 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, .2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        camera.update();
-        game.batch.setProjectionMatrix(camera.combined);
-        if (ship.isDead()) {
-            gameOver.show();
-            renderDebug();
-            game.batch.begin();
-            renderObjects(delta);
-            renderGameOver(delta);
-            game.batch.end();
-            updateObjects(delta);
-            checkCollisions(delta);
-            if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-                resetGame();
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-                quitGame();
-            }
+        engine.update(delta);
 
-        } else {
-            gameOver.hide();
-            renderDebug();
-            game.batch.begin();
-            renderObjects(delta);
-            game.batch.end();
-            handleInput(delta);
-            updateObjects(delta);
-            checkCollisions(delta);
-        }
+
+//        camera.update();
+//        game.batch.setProjectionMatrix(camera.combined);
+//        if (ship.isDead()) {
+//            gameOver.show();
+//            renderDebug();
+//            game.batch.begin();
+//            renderObjects(delta);
+//            renderGameOver(delta);
+//            game.batch.end();
+//            updateObjects(delta);
+//            checkCollisions(delta);
+//            if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+//                resetGame();
+//            } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+//                quitGame();
+//            }
+//
+//        } else {
+//            gameOver.hide();
+//            renderDebug();
+//            game.batch.begin();
+//            renderObjects(delta);
+//            game.batch.end();
+//            handleInput(delta);
+//            updateObjects(delta);
+//            checkCollisions(delta);
+//        }
 
     }
 

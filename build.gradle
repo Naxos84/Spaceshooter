@@ -101,6 +101,8 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
+        compile "net.onedaybeard.artemis:artemis-odb:2.1.0"
+        compile "com.badlogicgames.ashley:ashley:1.7.0"
 
         testCompile "junit:junit:4.12"
         testCompile "org.mockito:mockito-core:2.2.7"
