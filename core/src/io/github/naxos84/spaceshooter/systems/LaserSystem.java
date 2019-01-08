@@ -16,7 +16,6 @@ public class LaserSystem extends IteratingSystem {
     private ComponentMapper<LaserComponent> laserMapper;
     private ComponentMapper<PositionComponent> positionMapper;
     private ComponentMapper<SizeComponent> sizeMapper;
-    private ComponentMapper<CollisionComponent> collisionMapper;
 
     public LaserSystem() {
         super(Family.all(LaserComponent.class, PositionComponent.class, SizeComponent.class, CollisionComponent.class).get());
@@ -24,7 +23,6 @@ public class LaserSystem extends IteratingSystem {
         laserMapper = ComponentMapper.getFor(LaserComponent.class);
         positionMapper = ComponentMapper.getFor(PositionComponent.class);
         sizeMapper = ComponentMapper.getFor(SizeComponent.class);
-        collisionMapper = ComponentMapper.getFor(CollisionComponent.class);
     }
 
     @Override

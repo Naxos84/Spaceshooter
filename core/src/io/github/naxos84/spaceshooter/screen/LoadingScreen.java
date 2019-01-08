@@ -71,6 +71,8 @@ public class LoadingScreen implements Screen {
                 case FINISHED:
                     currentText = game.bundle.get("KEY_FINISHED_LOADING");
                     break;
+                    default:
+                        currentText = game.bundle.get("KEY_NOT_FOUND");
             }
             if (currentLoadingStage > 5) {
                 countDown -= delta;  // timer to stay on loading screen for short preiod once done loading

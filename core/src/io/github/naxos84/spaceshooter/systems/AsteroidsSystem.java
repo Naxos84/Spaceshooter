@@ -14,17 +14,13 @@ public class AsteroidsSystem extends IteratingSystem {
     private ComponentMapper<AsteroidsComponent> asteroidsMapper;
     private ComponentMapper<PositionComponent> positionMapper;
     private ComponentMapper<SizeComponent> sizeMapper;
-    private ComponentMapper<CollisionComponent> collisionMapper;
-    private final AudioManager audioManager;
 
     public AsteroidsSystem(final AudioManager audioManager) {
         super(Family.all(AsteroidsComponent.class, PositionComponent.class, SizeComponent.class, CollisionComponent.class).get());
 
-        this.audioManager = audioManager;
         asteroidsMapper = ComponentMapper.getFor(AsteroidsComponent.class);
         positionMapper = ComponentMapper.getFor(PositionComponent.class);
         sizeMapper = ComponentMapper.getFor(SizeComponent.class);
-        collisionMapper = ComponentMapper.getFor(CollisionComponent.class);
     }
 
     @Override
@@ -38,17 +34,6 @@ public class AsteroidsSystem extends IteratingSystem {
             getEngine().removeEntity(entity);
             Gdx.app.log(this.getClass().getName(), "asteroid entity left screen --> removed.");
         }
-//        CollisionComponent collisionComponent = collisionMapper.get(entity);
-//        if (collisionComponent.collisionEntity != null) {
-//            Gdx.app.log(this.getClass().getName(), "Collision detected.");
-//            LaserComponent lc = collisionComponent.collisionEntity.getComponent(LaserComponent.class);
-//            if (lc != null) {
-//                getEngine().removeEntity(entity);
-//                getEngine().removeEntity(collisionComponent.collisionEntity);
-//                audioManager.playExplosion();
-//            }
-//            collisionComponent.collisionEntity = null;
-//        }
     }
 
     @Override

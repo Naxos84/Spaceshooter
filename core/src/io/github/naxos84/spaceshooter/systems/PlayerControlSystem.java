@@ -18,7 +18,6 @@ public class PlayerControlSystem extends IteratingSystem {
 
     private ComponentMapper<PositionComponent> positionMapper;
     private ComponentMapper<SizeComponent> sizeMapper;
-    private ComponentMapper<CollisionComponent> collisionMapper;
     private ComponentMapper<AttributesComponent> playerMapper;
     private final KeyboardController keyboardController;
     private float rateOfFire;
@@ -32,7 +31,6 @@ public class PlayerControlSystem extends IteratingSystem {
 
         positionMapper = ComponentMapper.getFor(PositionComponent.class);
         sizeMapper = ComponentMapper.getFor(SizeComponent.class);
-        collisionMapper = ComponentMapper.getFor(CollisionComponent.class);
         playerMapper = ComponentMapper.getFor(AttributesComponent.class);
         rateOfFire = 10;
         lastLaserSpawn = TimeUtils.millis();
@@ -82,15 +80,6 @@ public class PlayerControlSystem extends IteratingSystem {
             Gdx.app.log("ERROR", "No position available.");
         }
 
-//        CollisionComponent collisionComponent = collisionMapper.get(entity);
-//        if (collisionComponent.collisionEntity != null) {
-//            Gdx.app.log("PlayerControlSystem", "Player health: " + playerMapper.get(entity).getHealth());
-//            int maxHealth = playerMapper.get(collisionComponent.collisionEntity).getMaxHealth();
-//            playerMapper.get(entity).reduceHealth(maxHealth);
-//            Gdx.app.log("PlayerControlSystem", "Player collided.");
-//            getEngine().removeEntity(collisionComponent.collisionEntity);
-//            collisionComponent.collisionEntity = null;
-//        }
         if (playerMapper.get(entity).isDead()) {
             getEngine().removeEntity(entity);
         }

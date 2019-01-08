@@ -48,7 +48,7 @@ public class AttributesComponent implements Component {
         energyTimer += deltaTime;
         if (energyTimer >= .1f) {
             energy +=5;
-            MathUtils.clamp(energy, 0, maxEnergy);
+            energy = MathUtils.clamp(energy, 0, maxEnergy);
             energyTimer -=.1f;
         }
     }

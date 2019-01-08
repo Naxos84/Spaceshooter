@@ -5,12 +5,10 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -22,36 +20,23 @@ import io.github.naxos84.spaceshooter.manager.ScreenManager;
 import io.github.naxos84.spaceshooter.manager.SpaceshooterAssetManager;
 import io.github.naxos84.spaceshooter.model.*;
 import io.github.naxos84.spaceshooter.overlay.GameOver;
-import io.github.naxos84.spaceshooter.renderer.AsteroidRenderer;
-import io.github.naxos84.spaceshooter.renderer.EnemyRenderer;
-import io.github.naxos84.spaceshooter.renderer.LaserRenderer;
-import io.github.naxos84.spaceshooter.renderer.ShipRenderer;
 import io.github.naxos84.spaceshooter.systems.*;
 
-import java.util.Iterator;
 import java.util.Random;
 
 public class GameScreen implements Screen {
 
     private final SpaceShooter game;
-    private final boolean debugMode;
     private final SpaceshooterAssetManager assetManager;
     private final Random random = new Random();
     private final KeyboardController keyboardController = new KeyboardController();
     private final AudioManager audioManager;
     private Ship ship;
-    private ShipRenderer shipRenderer;
-    private OrthographicCamera camera;
     private Array<Asteroid> asteroids;
-    private AsteroidRenderer asteroidsRenderer;
     private long lastAsteroidSpawn;
     private Array<Laser> lasers;
-    private Array<Laser> enemyLasers;
     private Array<Enemy> enemies;
-    private LaserRenderer laserRenderer;
-    private long lastLaserSpawn;
     private ParticleEffect effect;
-    private ShapeRenderer sRenderer;
     private Score score;
     private float energyTimer = 0f;
     private GameOver gameOver;
@@ -61,7 +46,6 @@ public class GameScreen implements Screen {
     private TextureRegion energyBarLeft;
     private TextureRegion energyBarMid;
     private TextureRegion energyBarRight;
-    private EnemyRenderer enemyRenderer;
     private int spawnCount = 0;
 
 
@@ -70,15 +54,9 @@ public class GameScreen implements Screen {
 
     public GameScreen(final SpaceShooter game, AudioManager audioManager, final boolean debugMode) {
         this.game = game;
-        this.debugMode = debugMode;
         this.assetManager = game.getAssetManager();
 
-        sRenderer = new ShapeRenderer();
-
         Gdx.app.log("SpaceShooter", "creating things.");
-
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 600);
 
         ship = new Ship(800 / 2 - 64 / 2, 600 / 2 - 64 / 2, 64, 64);
 
@@ -122,7 +100,6 @@ public class GameScreen implements Screen {
 
     private void spawnEnemy() {
         int id = random.nextInt(assetManager.getNumberOfEnemies());
-        final String regionName = assetManager.getEnemy(id).name;
         float width = assetManager.getEnemy(id).getRegionWidth();
         float height = assetManager.getEnemy(id).getRegionHeight();
 
@@ -232,25 +209,12 @@ public class GameScreen implements Screen {
             }
         });
 
-//        shipRenderer = new ShipRenderer(assetManager);
-//        laserRenderer = new LaserRenderer(assetManager);
-//        asteroidsRenderer = new AsteroidRenderer(assetManager);
-//        enemyRenderer = new EnemyRenderer(assetManager);
-//
-//        Gdx.input.setInputProcessor(keyboardController);
-//        effect = new ParticleEffect();
-//        effect.load(Gdx.files.internal("images/particles/meteor_explosion.p"), Gdx.files.internal("images/meteors"));
-//        audioManager.playGameMusic();
-//        score = new Score();
-//
-//
         healthBarLeft = assetManager.getHealthBarLeft();
         healthBarMid = assetManager.getHealthBarMid();
         healthBarRight = assetManager.getHealthBarRight();
         energyBarLeft = assetManager.getEnergyBarLeft();
         energyBarMid = assetManager.getEnergyBarMid();
         energyBarRight = assetManager.getEnergyBarRight();
-//        resetGame();
     }
 
     @Override
@@ -258,15 +222,6 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, .2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-
-//        camera.update();
-//        game.batch.setProjectionMatrix(camera.combined);
-//        if (ship.isDead()) {
-//            gameOver.show();
-//            renderDebug();
-//
-//            updateObjects(delta);
-//            checkCollisions(delta);
         if (gameOver.isVisible()) {
             game.batch.begin();
             renderGameOver(delta);
@@ -282,36 +237,7 @@ public class GameScreen implements Screen {
             updateObjects(delta);
             renderObjects(delta);
         }
-//
-//        } else {
-//            gameOver.hide();
-//            renderDebug();
-//            game.batch.begin();
-//            renderObjects(delta);
-//            game.batch.end();
-//            handleInput(delta);
-//            updateObjects(delta);
-//            checkCollisions(delta);
-//        }
 
-    }
-
-    private void renderDebug() {
-        sRenderer.begin(ShapeRenderer.ShapeType.Line);
-        if (debugMode) {
-            sRenderer.setColor(Color.RED);
-            shipRenderer.renderDebug(sRenderer, ship);
-            for (Asteroid asteroid : asteroids) {
-                asteroidsRenderer.renderDebug(sRenderer, asteroid);
-            }
-            for (Laser laser : lasers) {
-                laserRenderer.renderDebug(sRenderer, laser);
-            }
-            for (Enemy enemy : enemies) {
-                enemyRenderer.renderDebug(sRenderer, enemy);
-            }
-        }
-        sRenderer.end();
     }
 
     private void renderObjects(final float delta) {
@@ -338,121 +264,15 @@ public class GameScreen implements Screen {
 
     }
 
-    private void handleInput(final float delta) {
-        if (keyboardController.isLeftPressed()) {
-            ship.moveLeft(delta);
-        }
-        if (keyboardController.isRightPressed()) {
-            ship.moveRight(delta);
-        }
-        if (keyboardController.isUpPressed()) {
-            ship.moveUp(delta);
-        }
-        if (keyboardController.isDownPressed()) {
-            ship.moveDown(delta);
-        }
-        if (keyboardController.isEscapePressed()) {
-            quitGame();
-        }
-
-        if (keyboardController.isNumpad0Pressed()) {
-            spawnAsteroid();
-        }
-    }
-
     private void updateObjects(final float delta) {
         energyTimer += delta;
         if (energyTimer >= .1f) {
-//            ship.addEnergy(5);
             energyTimer -= .1f;
         }
 
-//        ship.updatePosition();
 
         if (TimeUtils.millis() - lastAsteroidSpawn > 500) {
             spawnHazard();
-        }
-    }
-
-    private void checkCollisions(final float delta) {
-        for (Iterator<Asteroid> asteroidsIterator = new Array.ArrayIterator<>(asteroids); asteroidsIterator.hasNext(); ) {
-            Asteroid asteroid = asteroidsIterator.next();
-            asteroid.updatePosition(delta);
-            if (asteroid.isDead()) {
-                asteroidsIterator.remove();
-            } else if (ship.isAlive() && asteroid.overlaps(ship.getCollisionBox())) {
-                ship.reduceHealth(asteroid.getCurrentHealth());
-                asteroidsIterator.remove();
-                effect.setPosition(asteroid.getX(), asteroid.getY());
-                effect.start();
-                if (game.getGamePreferences().isSoundEnabled()) {
-                    assetManager.getAsteroidExplosion().play(game.getGamePreferences().getSoundVolume());
-                }
-            }
-
-        }
-
-        for (Iterator<Enemy> enemiesIterator = new Array.ArrayIterator<>(enemies); enemiesIterator.hasNext(); ) {
-            Enemy enemy = enemiesIterator.next();
-            enemy.updatePosition(delta);
-            if (enemy.isDead()) {
-                enemiesIterator.remove();
-            } else if (ship.isAlive() && enemy.overlaps(ship.getCollisionBox())) {
-                ship.reduceHealth(enemy.getCurrentHealth());
-                enemiesIterator.remove();
-                effect.setPosition(enemy.getX(), enemy.getY());
-                effect.start();
-                if (game.getGamePreferences().isSoundEnabled()) {
-                    assetManager.getAsteroidExplosion().play(game.getGamePreferences().getSoundVolume());
-                }
-            }
-        }
-        for (Iterator<Laser> lasersIterator = new Array.ArrayIterator<>(lasers); lasersIterator.hasNext(); ) {
-            Laser laser = lasersIterator.next();
-            laser.updatePosition(delta);
-            boolean laserRemoved = false;
-            if (laser.isDead()) {
-                lasersIterator.remove();
-                laserRemoved = true;
-            }
-            for (Iterator<Asteroid> asteroidsIterator = new Array.ArrayIterator<>(asteroids); asteroidsIterator.hasNext(); ) {
-                Asteroid asteroid = asteroidsIterator.next();
-                if (laser.overlaps(asteroid.getCollisionBox())) {
-                    asteroid.reduceHealth(2);
-                    if (asteroid.isDead()) {
-                        effect.setPosition(asteroid.getX(), asteroid.getY());
-                        effect.start();
-                        score.add(1);
-                        if (game.getGamePreferences().isSoundEnabled()) {
-                            assetManager.getAsteroidExplosion().play(game.getGamePreferences().getSoundVolume());
-                        }
-                        asteroidsIterator.remove();
-                    }
-                    if (!laserRemoved) {
-                        lasersIterator.remove();
-                        laserRemoved = true;
-                    }
-                }
-            }
-            for (Iterator<Enemy> enemyIterator = new Array.ArrayIterator<>(enemies); enemyIterator.hasNext(); ) {
-                Enemy enemy = enemyIterator.next();
-                if (laser.overlaps(enemy.getCollisionBox())) {
-                    enemy.reduceHealth(2);
-                    if (enemy.isDead()) {
-                        effect.setPosition(enemy.getX(), enemy.getY());
-                        effect.start();
-                        score.add(1);
-                        if (game.getGamePreferences().isSoundEnabled()) {
-                            assetManager.getAsteroidExplosion().play(game.getGamePreferences().getSoundVolume());
-                        }
-                        enemyIterator.remove();
-                    }
-                    if (!laserRemoved) {
-                        lasersIterator.remove();
-                        laserRemoved = true;
-                    }
-                }
-            }
         }
     }
 

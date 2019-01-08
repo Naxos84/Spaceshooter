@@ -14,7 +14,6 @@ public class CollisionComponent implements Component {
     /**
      * handles the collision between the internal collisitionEntity and the colliding entity.
      * @param collidedEntity the entity that is colliding with the internal collision entity
-     * @return true if the collided entity is dead and false otherwise
      */
     public void handleCollision(final Entity collidedEntity) {
         AttributesComponent attributes = collisionEntity.getComponent(AttributesComponent.class);
