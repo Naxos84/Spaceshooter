@@ -3,6 +3,7 @@ package io.github.naxos84.spaceshooter.screen;
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -37,6 +38,7 @@ public class GameScreen implements Screen {
     private final SpaceshooterAssetManager assetManager;
     private final Random random = new Random();
     private final KeyboardController keyboardController = new KeyboardController();
+    private final AudioManager audioManager;
     private Ship ship;
     private ShipRenderer shipRenderer;
     private OrthographicCamera camera;
@@ -59,17 +61,14 @@ public class GameScreen implements Screen {
     private TextureRegion energyBarLeft;
     private TextureRegion energyBarMid;
     private TextureRegion energyBarRight;
-    private final AudioManager audioManager;
     private EnemyRenderer enemyRenderer;
     private int spawnCount = 0;
-
-
 
 
     private Engine engine;
 
 
-    public GameScreen(final SpaceShooter game, AudioManager audioManager,  final boolean debugMode) {
+    public GameScreen(final SpaceShooter game, AudioManager audioManager, final boolean debugMode) {
         this.game = game;
         this.debugMode = debugMode;
         this.assetManager = game.getAssetManager();
@@ -102,10 +101,10 @@ public class GameScreen implements Screen {
 
         entity.add(positionComponent);
         entity.add(textureComponent);
-        entity.add(new PlayerComponent());
+        entity.add(new AttributesComponent(100, 100));
         entity.add(new SizeComponent(64, 64));
-        entity.add(new CollisionComponent());
-        entity.add(new HealthComponent(100));
+        entity.add(new CollisionComponent(entity));
+        entity.add(new DamageComponent(Integer.MAX_VALUE));
 
         engine.addEntity(entity);
     }
@@ -130,14 +129,15 @@ public class GameScreen implements Screen {
         Entity enemy = new Entity();
         enemy.add(new EnemyComponent(200));
         enemy.add(new PositionComponent(SpaceShooter.SCREEN_WIDTH + 10, MathUtils.floor(MathUtils.random(10, SpaceShooter.SCREEN_HEIGHT - height))));
-        enemy.add(new SizeComponent(MathUtils.floor(width) - 10, MathUtils.floor(height) -10));
+        enemy.add(new SizeComponent(MathUtils.floor(width) - 10, MathUtils.floor(height) - 10));
 
         TextureComponent textureComponent = new TextureComponent();
         textureComponent.region = assetManager.getEnemy(id);
 
         enemy.add(textureComponent);
-        enemy.add(new CollisionComponent());
-        enemy.add(new HealthComponent(10));
+        enemy.add(new CollisionComponent(enemy));
+        enemy.add(new AttributesComponent(10));
+        enemy.add(new DamageComponent(10));
         Gdx.app.log("GameScreen", "Added enemy");
         engine.addEntity(enemy);
     }
@@ -165,8 +165,9 @@ public class GameScreen implements Screen {
         TextureComponent textureComponent = new TextureComponent();
         textureComponent.region = assetManager.getAsteroid(id);
         asteroid.add(textureComponent);
-        asteroid.add(new CollisionComponent());
-        asteroid.add(new HealthComponent(asteroidHealth));
+        asteroid.add(new CollisionComponent(asteroid));
+        asteroid.add(new AttributesComponent(asteroidHealth));
+        asteroid.add(new DamageComponent(10));
         Gdx.app.log("GameScreen", "Added asteroid");
         engine.addEntity(asteroid);
     }
@@ -178,9 +179,8 @@ public class GameScreen implements Screen {
         score = new Score();
         audioManager.playGameMusic();
         Gdx.input.setInputProcessor(keyboardController);
-        RenderSystem renderSystem = new RenderSystem(game.batch, game.shapeRenderer);
         engine = new PooledEngine();
-        engine.addSystem(renderSystem);
+        engine.addSystem(new RenderSystem(game.batch, game.shapeRenderer));
         engine.addSystem(new PlayerControlSystem(keyboardController, audioManager));
         engine.addSystem(new LaserSystem());
         engine.addSystem(new CollisionSystem());
@@ -196,7 +196,9 @@ public class GameScreen implements Screen {
 
             @Override
             public void entityRemoved(final Entity entity) {
-                score.add(1);
+                if (entity.getComponent(AttributesComponent.class).isDead()) {
+                    score.add(1);
+                }
                 PositionComponent position = entity.getComponent(PositionComponent.class);
                 effect.setPosition(position.x, position.y);
                 effect.start();
@@ -210,21 +212,23 @@ public class GameScreen implements Screen {
 
             @Override
             public void entityRemoved(final Entity entity) {
-                score.add(1);
+                if (entity.getComponent(AttributesComponent.class).isDead()) {
+                    score.add(1);
+                }
                 PositionComponent position = entity.getComponent(PositionComponent.class);
                 effect.setPosition(position.x, position.y);
                 effect.start();
             }
         });
-        engine.addEntityListener(Family.all(PlayerComponent.class).get(), new EntityListener() {
+        engine.addEntityListener(Family.all(AttributesComponent.class).exclude(AsteroidsComponent.class, EnemyComponent.class, LaserComponent.class).get(), new EntityListener() {
             @Override
             public void entityAdded(final Entity entity) {
-
+                gameOver.hide();
             }
 
             @Override
             public void entityRemoved(final Entity entity) {
-                quitGame();
+                gameOver.show();
             }
         });
 
@@ -254,25 +258,30 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, .2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        engine.update(delta);
-        updateObjects(delta);
-        renderObjects(delta);
+
 //        camera.update();
 //        game.batch.setProjectionMatrix(camera.combined);
 //        if (ship.isDead()) {
 //            gameOver.show();
 //            renderDebug();
-//            game.batch.begin();
-//            renderObjects(delta);
-//            renderGameOver(delta);
-//            game.batch.end();
+//
 //            updateObjects(delta);
 //            checkCollisions(delta);
-//            if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-//                resetGame();
-//            } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-//                quitGame();
-//            }
+        if (gameOver.isVisible()) {
+            game.batch.begin();
+            renderGameOver(delta);
+            game.batch.end();
+            renderObjects(delta);
+            if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+                resetGame();
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                quitGame();
+            }
+        } else {
+            engine.update(delta);
+            updateObjects(delta);
+            renderObjects(delta);
+        }
 //
 //        } else {
 //            gameOver.hide();
@@ -310,21 +319,23 @@ public class GameScreen implements Screen {
         score.render(game.batch, game.bundle);
         effect.draw(game.batch, delta);
 
-        ImmutableArray<Entity> players = engine.getEntitiesFor(Family.all(PlayerComponent.class).get());
+        ImmutableArray<Entity> players = engine.getEntitiesFor(Family.all(AttributesComponent.class).exclude(AsteroidsComponent.class, EnemyComponent.class, LaserComponent.class).get());
         if (players.size() > 0) {
             Entity player = players.get(0);
-            HealthComponent healthComponent = player.getComponent(HealthComponent.class);
-            float healthBarWidth = (float) healthComponent.getHealth() / Ship.MAX_HEALTH * 200f;
+            AttributesComponent playerComponent = player.getComponent(AttributesComponent.class);
+            float healthBarWidth = (float) playerComponent.getHealth() / Ship.MAX_HEALTH * 200f;
             game.batch.draw(healthBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.SCREEN_HEIGHT - 40, 6, 15);
             game.batch.draw(healthBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.SCREEN_HEIGHT - 40, healthBarWidth, 15);
             game.batch.draw(healthBarRight, SpaceShooter.SCREEN_WIDTH - 214 + healthBarWidth, SpaceShooter.SCREEN_HEIGHT - 40, 6, 15);
-            game.batch.end();
-        }
 
-//        float energyBarWidth = (float) ship.getCurrentEnergy() / Ship.MAX_ENERGY * 200f;
-//        game.batch.draw(energyBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.SCREEN_HEIGHT - 24, 6, 15);
-//        game.batch.draw(energyBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.SCREEN_HEIGHT - 24, energyBarWidth, 15);
-//        game.batch.draw(energyBarRight, SpaceShooter.SCREEN_WIDTH - 214 + energyBarWidth, SpaceShooter.SCREEN_HEIGHT - 24, 6, 15);
+            float energyBarWidth = (float) playerComponent.getEnergy() / Ship.MAX_ENERGY * 200f;
+            game.batch.draw(energyBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.SCREEN_HEIGHT - 24, 6, 15);
+            game.batch.draw(energyBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.SCREEN_HEIGHT - 24, energyBarWidth, 15);
+            game.batch.draw(energyBarRight, SpaceShooter.SCREEN_WIDTH - 214 + energyBarWidth, SpaceShooter.SCREEN_HEIGHT - 24, 6, 15);
+        }
+        game.batch.end();
+
+
     }
 
     private void handleInput(final float delta) {
@@ -461,6 +472,8 @@ public class GameScreen implements Screen {
         lasers.clear();
         score.reset();
         enemies.clear();
+
+        createPlayer();
     }
 
     @Override

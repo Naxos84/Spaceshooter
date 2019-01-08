@@ -36,19 +36,19 @@ public class AsteroidsSystem extends IteratingSystem {
         position.x += component.getSpeed() * deltaTime;
         if (position.x > SpaceShooter.SCREEN_WIDTH + 100 || position.x < 0 - size.getWidth()) {
             getEngine().removeEntity(entity);
-            Gdx.app.log("LaserSystem", "entity removed.");
+            Gdx.app.log(this.getClass().getName(), "asteroid entity left screen --> removed.");
         }
-        CollisionComponent collisionComponent = collisionMapper.get(entity);
-        if (collisionComponent.collisionEntity != null) {
-            Gdx.app.log("AsteroidsSystem", "Collision detected.");
-            LaserComponent lc = collisionComponent.collisionEntity.getComponent(LaserComponent.class);
-            if (lc != null) {
-                getEngine().removeEntity(entity);
-                getEngine().removeEntity(collisionComponent.collisionEntity);
-                audioManager.playExplosion();
-            }
-            collisionComponent.collisionEntity = null;
-        }
+//        CollisionComponent collisionComponent = collisionMapper.get(entity);
+//        if (collisionComponent.collisionEntity != null) {
+//            Gdx.app.log(this.getClass().getName(), "Collision detected.");
+//            LaserComponent lc = collisionComponent.collisionEntity.getComponent(LaserComponent.class);
+//            if (lc != null) {
+//                getEngine().removeEntity(entity);
+//                getEngine().removeEntity(collisionComponent.collisionEntity);
+//                audioManager.playExplosion();
+//            }
+//            collisionComponent.collisionEntity = null;
+//        }
     }
 
     @Override

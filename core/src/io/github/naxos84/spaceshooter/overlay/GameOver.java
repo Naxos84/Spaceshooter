@@ -34,4 +34,8 @@ public class GameOver {
             font.draw(batch, layout, 800 / 2, 600 / 2 + layout.height / 2);
         }
     }
+
+    public boolean isVisible() {
+        return show;
+    }
 }

@@ -1,6 +1,5 @@
 package io.github.naxos84.spaceshooter.systems;
 
-import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -15,28 +14,26 @@ import io.github.naxos84.spaceshooter.components.*;
 import io.github.naxos84.spaceshooter.controller.KeyboardController;
 import io.github.naxos84.spaceshooter.manager.AudioManager;
 
-import javax.xml.soap.Text;
-
 public class PlayerControlSystem extends IteratingSystem {
 
     private ComponentMapper<PositionComponent> positionMapper;
     private ComponentMapper<SizeComponent> sizeMapper;
     private ComponentMapper<CollisionComponent> collisionMapper;
-    private ComponentMapper<HealthComponent> healthMapper;
+    private ComponentMapper<AttributesComponent> playerMapper;
     private final KeyboardController keyboardController;
     private float rateOfFire;
     private long lastLaserSpawn;
     private final AudioManager audioManager;
 
     public PlayerControlSystem(final KeyboardController keyboardController, final AudioManager audioManager) {
-        super(Family.all(PositionComponent.class, SizeComponent.class, PlayerComponent.class, HealthComponent.class).get());
+        super(Family.all(PositionComponent.class, SizeComponent.class, AttributesComponent.class).exclude(AsteroidsComponent.class, EnemyComponent.class, LaserComponent.class).get());
         this.keyboardController = keyboardController;
         this.audioManager = audioManager;
 
         positionMapper = ComponentMapper.getFor(PositionComponent.class);
         sizeMapper = ComponentMapper.getFor(SizeComponent.class);
         collisionMapper = ComponentMapper.getFor(CollisionComponent.class);
-        healthMapper = ComponentMapper.getFor(HealthComponent.class);
+        playerMapper = ComponentMapper.getFor(AttributesComponent.class);
         rateOfFire = 10;
         lastLaserSpawn = TimeUtils.millis();
     }
@@ -61,7 +58,7 @@ public class PlayerControlSystem extends IteratingSystem {
             position.x = MathUtils.clamp(position.x, 0, SpaceShooter.SCREEN_WIDTH - 64);
             position.y = MathUtils.clamp(position.y, 0, SpaceShooter.SCREEN_HEIGHT - 64);
             if (keyboardController.isSpacePressed()) {
-                if (TimeUtils.millis() - lastLaserSpawn >  1000 / rateOfFire) {
+                if (TimeUtils.millis() - lastLaserSpawn >  1000 / rateOfFire && playerMapper.get(entity).hasEnergy(10)) {
                     Entity laser = new Entity();
                     SizeComponent size = sizeMapper.get(entity);
                     PositionComponent positionComponent = new PositionComponent(position.x + size.getWidth(), position.y + size.getHeight() / 2 + 3);
@@ -71,29 +68,33 @@ public class PlayerControlSystem extends IteratingSystem {
                     textureComponent.region = new TextureRegion(new Texture(Gdx.files.internal("images/lasers/laserBlue01.png")));
                     laser.add(textureComponent);
                     laser.add(new LaserComponent(600));
-                    laser.add(new CollisionComponent());
+                    laser.add(new CollisionComponent(laser));
                     laser.add(new SizeComponent(29, 6));
+                    laser.add(new DamageComponent(1));
+                    laser.add(new AttributesComponent(1));
                     getEngine().addEntity(laser);
                     lastLaserSpawn = TimeUtils.millis();
                     audioManager.playLaserSound();
+                    playerMapper.get(entity).reduceEnergy(10);
                 }
             }
         } else {
             Gdx.app.log("ERROR", "No position available.");
         }
 
-        CollisionComponent collisionComponent = collisionMapper.get(entity);
-        if (collisionComponent.collisionEntity != null) {
-            Gdx.app.log("PlayerControlSystem", "Player health: " + healthMapper.get(entity).getHealth());
-            int maxHealth = healthMapper.get(collisionComponent.collisionEntity).getMaxHealth();
-            healthMapper.get(entity).reduce(maxHealth);
-            Gdx.app.log("PlayerControlSystem", "Player collided.");
-            getEngine().removeEntity(collisionComponent.collisionEntity);
-            collisionComponent.collisionEntity = null;
-        }
-        if (healthMapper.get(entity).isDead()) {
+//        CollisionComponent collisionComponent = collisionMapper.get(entity);
+//        if (collisionComponent.collisionEntity != null) {
+//            Gdx.app.log("PlayerControlSystem", "Player health: " + playerMapper.get(entity).getHealth());
+//            int maxHealth = playerMapper.get(collisionComponent.collisionEntity).getMaxHealth();
+//            playerMapper.get(entity).reduceHealth(maxHealth);
+//            Gdx.app.log("PlayerControlSystem", "Player collided.");
+//            getEngine().removeEntity(collisionComponent.collisionEntity);
+//            collisionComponent.collisionEntity = null;
+//        }
+        if (playerMapper.get(entity).isDead()) {
             getEngine().removeEntity(entity);
         }
+        playerMapper.get(entity).updateEnergy(deltaTime);
     }
 
     @Override

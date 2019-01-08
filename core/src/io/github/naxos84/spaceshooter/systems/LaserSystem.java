@@ -36,7 +36,7 @@ public class LaserSystem extends IteratingSystem {
         position.x += component.getSpeed() * deltaTime;
         if (position.x > SpaceShooter.SCREEN_WIDTH + 100 || position.x < 0 - size.getWidth()) {
             getEngine().removeEntity(entity);
-            Gdx.app.log("LaserSystem", "entity removed.");
+            Gdx.app.log(this.getClass().getName(), "Laser entity left screen --> removed.");
         }
     }
 
