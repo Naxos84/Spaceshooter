@@ -24,7 +24,7 @@ public class RenderSystem extends IteratingSystem {
     private ComponentMapper<TextureComponent> textureMapper;
     private ComponentMapper<PositionComponent> positionMapper;
 
-    public RenderSystem(final SpriteBatch batch, final ShapeRenderer shapeRenderer, final boolean debug) {
+    public RenderSystem(final SpriteBatch batch, final ShapeRenderer shapeRenderer, final OrthographicCamera camera, final boolean debug) {
         super(Family.all(PositionComponent.class, TextureComponent.class).get());
 
         this.debug = debug;
@@ -35,8 +35,7 @@ public class RenderSystem extends IteratingSystem {
         renderQueue = new Array<>();
         this.batch = batch;
         this.shapeRenderer = shapeRenderer;
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 600);
+        this.camera = camera;
     }
 
     @Override

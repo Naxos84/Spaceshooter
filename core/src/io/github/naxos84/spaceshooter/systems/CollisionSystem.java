@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
+import io.github.naxos84.spaceshooter.Families;
 import io.github.naxos84.spaceshooter.components.*;
 
 
@@ -29,10 +30,10 @@ public class CollisionSystem extends EntitySystem {
     @Override
     public void addedToEngine(final Engine engine) {
         this.engine = engine;
-        players = engine.getEntitiesFor(Family.all(AttributesComponent.class, CollisionComponent.class).exclude(AsteroidsComponent.class, EnemyComponent.class).get());
-        asteroids = engine.getEntitiesFor(Family.all(AsteroidsComponent.class, PositionComponent.class, SizeComponent.class, CollisionComponent.class).get());
-        enemies = engine.getEntitiesFor(Family.all(EnemyComponent.class, PositionComponent.class, SizeComponent.class, CollisionComponent.class).get());
-        lasers = engine.getEntitiesFor(Family.all(LaserComponent.class,PositionComponent.class, SizeComponent.class, CollisionComponent.class).get());
+        players = engine.getEntitiesFor(Families.getPlayer());
+        asteroids = engine.getEntitiesFor(Families.getAsteroid());
+        enemies = engine.getEntitiesFor(Families.getEnemy());
+        lasers = engine.getEntitiesFor(Families.getLaser());
     }
 
     @Override

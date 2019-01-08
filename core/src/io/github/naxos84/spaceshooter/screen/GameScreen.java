@@ -6,19 +6,23 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import io.github.naxos84.spaceshooter.Families;
 import io.github.naxos84.spaceshooter.SpaceShooter;
 import io.github.naxos84.spaceshooter.components.*;
 import io.github.naxos84.spaceshooter.controller.KeyboardController;
+import io.github.naxos84.spaceshooter.listener.PlayerEntityListener;
 import io.github.naxos84.spaceshooter.manager.AudioManager;
 import io.github.naxos84.spaceshooter.manager.ScreenManager;
 import io.github.naxos84.spaceshooter.manager.SpaceshooterAssetManager;
 import io.github.naxos84.spaceshooter.model.*;
 import io.github.naxos84.spaceshooter.overlay.GameOver;
 import io.github.naxos84.spaceshooter.systems.*;
+import io.github.naxos84.spaceshooter.ui.Bar;
 
 import java.util.Random;
 
@@ -35,12 +39,11 @@ public class GameScreen implements Screen {
     private ParticleEffect effect;
     private Score score;
     private GameOver gameOver;
-    private TextureRegion healthBarLeft;
-    private TextureRegion healthBarMid;
-    private TextureRegion healthBarRight;
-    private TextureRegion energyBarLeft;
-    private TextureRegion energyBarMid;
-    private TextureRegion energyBarRight;
+
+    private OrthographicCamera camera;
+
+    private Bar healthBar;
+    private Bar energyBar;
     private int spawnCount = 0;
 
 
@@ -144,8 +147,12 @@ public class GameScreen implements Screen {
         score = new Score();
         audioManager.playGameMusic();
         Gdx.input.setInputProcessor(keyboardController);
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, SpaceShooter.SCREEN_WIDTH, SpaceShooter.SCREEN_HEIGHT);
+
         engine = new PooledEngine();
-        engine.addSystem(new RenderSystem(game.batch, game.shapeRenderer, debugMode));
+        engine.addSystem(new RenderSystem(game.batch, game.shapeRenderer, camera, debugMode));
         engine.addSystem(new PlayerControlSystem(keyboardController, audioManager));
         engine.addSystem(new LaserSystem());
         engine.addSystem(new CollisionSystem());
@@ -187,24 +194,20 @@ public class GameScreen implements Screen {
                 effect.start();
             }
         });
-        engine.addEntityListener(Family.all(AttributesComponent.class).exclude(AsteroidsComponent.class, EnemyComponent.class, LaserComponent.class).get(), new EntityListener() {
+        engine.addEntityListener(Families.getPlayer(), new PlayerEntityListener() {
             @Override
-            public void entityAdded(final Entity entity) {
-                gameOver.hide();
+            public void playerAdded(final Ship ship) {
+                gameOver.show();
             }
 
             @Override
-            public void entityRemoved(final Entity entity) {
+            public void playerRemoved(final Ship ship) {
                 gameOver.show();
             }
         });
 
-        healthBarLeft = assetManager.getHealthBarLeft();
-        healthBarMid = assetManager.getHealthBarMid();
-        healthBarRight = assetManager.getHealthBarRight();
-        energyBarLeft = assetManager.getEnergyBarLeft();
-        energyBarMid = assetManager.getEnergyBarMid();
-        energyBarRight = assetManager.getEnergyBarRight();
+        healthBar = new Bar(assetManager.getHealthBarLeft(), assetManager.getHealthBarMid(), assetManager.getHealthBarRight(), SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.SCREEN_HEIGHT - 40);
+        energyBar = new Bar(assetManager.getEnergyBarLeft(), assetManager.getEnergyBarMid(), assetManager.getEnergyBarRight(), SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.SCREEN_HEIGHT - 24);
     }
 
     @Override
@@ -235,19 +238,15 @@ public class GameScreen implements Screen {
         score.render(game.batch, game.bundle);
         effect.draw(game.batch, delta);
 
-        ImmutableArray<Entity> players = engine.getEntitiesFor(Family.all(AttributesComponent.class).exclude(AsteroidsComponent.class, EnemyComponent.class, LaserComponent.class).get());
+        ImmutableArray<Entity> players = engine.getEntitiesFor(Families.getPlayer());
         if (players.size() > 0) {
             Entity player = players.get(0);
             AttributesComponent playerComponent = player.getComponent(AttributesComponent.class);
             float healthBarWidth = (float) playerComponent.getHealth() / Ship.MAX_HEALTH * 200f;
-            game.batch.draw(healthBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.SCREEN_HEIGHT - 40, 6, 15);
-            game.batch.draw(healthBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.SCREEN_HEIGHT - 40, healthBarWidth, 15);
-            game.batch.draw(healthBarRight, SpaceShooter.SCREEN_WIDTH - 214 + healthBarWidth, SpaceShooter.SCREEN_HEIGHT - 40, 6, 15);
+            healthBar.render(game.batch, healthBarWidth);
 
             float energyBarWidth = (float) playerComponent.getEnergy() / Ship.MAX_ENERGY * 200f;
-            game.batch.draw(energyBarLeft, SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.SCREEN_HEIGHT - 24, 6, 15);
-            game.batch.draw(energyBarMid, SpaceShooter.SCREEN_WIDTH - 214, SpaceShooter.SCREEN_HEIGHT - 24, energyBarWidth, 15);
-            game.batch.draw(energyBarRight, SpaceShooter.SCREEN_WIDTH - 214 + energyBarWidth, SpaceShooter.SCREEN_HEIGHT - 24, 6, 15);
+            energyBar.render(game.batch, energyBarWidth);
         }
         game.batch.end();
 
