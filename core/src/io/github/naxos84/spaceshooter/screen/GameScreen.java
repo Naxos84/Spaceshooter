@@ -6,11 +6,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import io.github.naxos84.spaceshooter.SpaceShooter;
 import io.github.naxos84.spaceshooter.components.*;
@@ -26,19 +24,16 @@ import java.util.Random;
 
 public class GameScreen implements Screen {
 
+    private final boolean debugMode;
+
     private final SpaceShooter game;
     private final SpaceshooterAssetManager assetManager;
     private final Random random = new Random();
     private final KeyboardController keyboardController = new KeyboardController();
     private final AudioManager audioManager;
-    private Ship ship;
-    private Array<Asteroid> asteroids;
     private long lastAsteroidSpawn;
-    private Array<Laser> lasers;
-    private Array<Enemy> enemies;
     private ParticleEffect effect;
     private Score score;
-    private float energyTimer = 0f;
     private GameOver gameOver;
     private TextureRegion healthBarLeft;
     private TextureRegion healthBarMid;
@@ -53,16 +48,12 @@ public class GameScreen implements Screen {
 
 
     public GameScreen(final SpaceShooter game, AudioManager audioManager, final boolean debugMode) {
+
+        this.debugMode = debugMode;
         this.game = game;
         this.assetManager = game.getAssetManager();
 
         Gdx.app.log("SpaceShooter", "creating things.");
-
-        ship = new Ship(800 / 2 - 64 / 2, 600 / 2 - 64 / 2, 64, 64);
-
-        asteroids = new Array<>();
-        lasers = new Array<>();
-        enemies = new Array<>();
 
         gameOver = new GameOver();
         this.audioManager = audioManager;
@@ -71,20 +62,17 @@ public class GameScreen implements Screen {
     }
 
     private void createPlayer() {
-        Entity entity = new Entity();
-        PositionComponent positionComponent = new PositionComponent(MathUtils.floor(SpaceShooter.SCREEN_WIDTH / 2), MathUtils.floor(SpaceShooter.SCREEN_HEIGHT / 2));
+
+        Ship ship = new Ship(MathUtils.floor(SpaceShooter.SCREEN_WIDTH / 2f), MathUtils.floor(SpaceShooter.SCREEN_HEIGHT / 2f), 64, 64);
         TextureComponent textureComponent = new TextureComponent();
 
         textureComponent.region = new TextureRegion(assetManager.getShipTexture());
 
-        entity.add(positionComponent);
-        entity.add(textureComponent);
-        entity.add(new AttributesComponent(100, 100));
-        entity.add(new SizeComponent(64, 64));
-        entity.add(new CollisionComponent(entity));
-        entity.add(new DamageComponent(Integer.MAX_VALUE));
+        ship.add(textureComponent);
+        ship.add(new CollisionComponent(ship));
+        ship.add(new DamageComponent(Integer.MAX_VALUE));
 
-        engine.addEntity(entity);
+        engine.addEntity(ship);
     }
 
     private void spawnHazard() {
@@ -157,13 +145,13 @@ public class GameScreen implements Screen {
         audioManager.playGameMusic();
         Gdx.input.setInputProcessor(keyboardController);
         engine = new PooledEngine();
-        engine.addSystem(new RenderSystem(game.batch, game.shapeRenderer));
+        engine.addSystem(new RenderSystem(game.batch, game.shapeRenderer, debugMode));
         engine.addSystem(new PlayerControlSystem(keyboardController, audioManager));
         engine.addSystem(new LaserSystem());
         engine.addSystem(new CollisionSystem());
-        AsteroidsSystem asteroidsSystem = new AsteroidsSystem(audioManager);
+        AsteroidsSystem asteroidsSystem = new AsteroidsSystem();
         engine.addSystem(asteroidsSystem);
-        engine.addSystem(new EnemySystem(audioManager));
+        engine.addSystem(new EnemySystem());
         createPlayer();
         engine.addEntityListener(Family.all(AsteroidsComponent.class).get(), new EntityListener() {
             @Override
@@ -175,6 +163,7 @@ public class GameScreen implements Screen {
             public void entityRemoved(final Entity entity) {
                 if (entity.getComponent(AttributesComponent.class).isDead()) {
                     score.add(1);
+                    audioManager.playExplosion();
                 }
                 PositionComponent position = entity.getComponent(PositionComponent.class);
                 effect.setPosition(position.x, position.y);
@@ -191,6 +180,7 @@ public class GameScreen implements Screen {
             public void entityRemoved(final Entity entity) {
                 if (entity.getComponent(AttributesComponent.class).isDead()) {
                     score.add(1);
+                    audioManager.playExplosion();
                 }
                 PositionComponent position = entity.getComponent(PositionComponent.class);
                 effect.setPosition(position.x, position.y);
@@ -265,12 +255,6 @@ public class GameScreen implements Screen {
     }
 
     private void updateObjects(final float delta) {
-        energyTimer += delta;
-        if (energyTimer >= .1f) {
-            energyTimer -= .1f;
-        }
-
-
         if (TimeUtils.millis() - lastAsteroidSpawn > 500) {
             spawnHazard();
         }
@@ -285,13 +269,7 @@ public class GameScreen implements Screen {
     }
 
     private void resetGame() {
-        ship.addHealth(Ship.MAX_HEALTH);
-        ship.addEnergy(Ship.MAX_ENERGY);
-        ship.setPosition(800 / 2 - 64 / 2, 600 / 2 - 64 / 2);
-        asteroids.clear();
-        lasers.clear();
         score.reset();
-        enemies.clear();
 
         createPlayer();
     }
@@ -315,6 +293,7 @@ public class GameScreen implements Screen {
     public void hide() {
         assetManager.getAsteroidExplosion().stop();
         assetManager.getLaserSound().stop();
+        resetGame();
     }
 
     @Override

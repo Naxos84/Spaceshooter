@@ -14,10 +14,6 @@ public class AudioManager {
     private Sound laserSound;
     private Sound explosionSound;
 
-    private float musicVolume;
-    private float soundVolume;
-
-
     public AudioManager(final SpaceShooter game, final SpaceshooterAssetManager assetManager) {
         this.game = game;
         this.assetManager = assetManager;

@@ -15,7 +15,7 @@ public class AsteroidsSystem extends IteratingSystem {
     private ComponentMapper<PositionComponent> positionMapper;
     private ComponentMapper<SizeComponent> sizeMapper;
 
-    public AsteroidsSystem(final AudioManager audioManager) {
+    public AsteroidsSystem() {
         super(Family.all(AsteroidsComponent.class, PositionComponent.class, SizeComponent.class, CollisionComponent.class).get());
 
         asteroidsMapper = ComponentMapper.getFor(AsteroidsComponent.class);

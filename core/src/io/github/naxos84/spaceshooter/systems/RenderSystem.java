@@ -15,6 +15,7 @@ import io.github.naxos84.spaceshooter.components.TextureComponent;
 
 public class RenderSystem extends IteratingSystem {
 
+    private final boolean debug;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
     private Array<Entity> renderQueue;
@@ -23,8 +24,10 @@ public class RenderSystem extends IteratingSystem {
     private ComponentMapper<TextureComponent> textureMapper;
     private ComponentMapper<PositionComponent> positionMapper;
 
-    public RenderSystem(final SpriteBatch batch, final ShapeRenderer shapeRenderer) {
+    public RenderSystem(final SpriteBatch batch, final ShapeRenderer shapeRenderer, final boolean debug) {
         super(Family.all(PositionComponent.class, TextureComponent.class).get());
+
+        this.debug = debug;
 
         textureMapper = ComponentMapper.getFor(TextureComponent.class);
         positionMapper = ComponentMapper.getFor(PositionComponent.class);
@@ -41,6 +44,15 @@ public class RenderSystem extends IteratingSystem {
         super.update(deltaTime);
 
         camera.update();
+        render();
+
+        if (debug) {
+            renderDebug();
+        }
+        renderQueue.clear();
+    }
+
+    private void render() {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         for (Array.ArrayIterator<Entity> entityIterator = new Array.ArrayIterator<>(renderQueue); entityIterator.hasNext(); ) {
@@ -63,6 +75,9 @@ public class RenderSystem extends IteratingSystem {
 
         }
         batch.end();
+    }
+
+    private void renderDebug() {
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.begin();
         for (Array.ArrayIterator<Entity> entityIterator = new Array.ArrayIterator<>(renderQueue); entityIterator.hasNext(); ) {
@@ -82,7 +97,6 @@ public class RenderSystem extends IteratingSystem {
 
         }
         shapeRenderer.end();
-        renderQueue.clear();
     }
 
     @Override

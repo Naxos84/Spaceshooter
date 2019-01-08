@@ -13,15 +13,15 @@ public class AttributesComponent implements Component {
 
     private float energyTimer;
 
-    public AttributesComponent(final int health, final int energy) {
+    public AttributesComponent(final int health, final int energy, final int maxHealth, final int maxEnergy) {
         this.health = health;
-        this.maxHealth = health;
-        maxEnergy = energy;
+        this.maxHealth = maxHealth;
+        this.maxEnergy = maxEnergy;
         this.energy = energy;
     }
 
     public AttributesComponent(final int health) {
-        this(health, 0);
+        this(health, 0, 100, 100);
     }
 
     public void reduceHealth(final int health) {
