@@ -13,6 +13,7 @@ public class CollisionComponent implements Component {
 
     /**
      * handles the collision between the internal collisitionEntity and the colliding entity.
+     *
      * @param collidedEntity the entity that is colliding with the internal collision entity
      */
     public void handleCollision(final Entity collidedEntity) {

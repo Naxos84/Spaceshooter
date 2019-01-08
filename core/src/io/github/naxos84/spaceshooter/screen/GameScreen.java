@@ -19,7 +19,8 @@ import io.github.naxos84.spaceshooter.listener.PlayerEntityListener;
 import io.github.naxos84.spaceshooter.manager.AudioManager;
 import io.github.naxos84.spaceshooter.manager.ScreenManager;
 import io.github.naxos84.spaceshooter.manager.SpaceshooterAssetManager;
-import io.github.naxos84.spaceshooter.model.*;
+import io.github.naxos84.spaceshooter.model.Score;
+import io.github.naxos84.spaceshooter.model.Ship;
 import io.github.naxos84.spaceshooter.overlay.GameOver;
 import io.github.naxos84.spaceshooter.systems.*;
 import io.github.naxos84.spaceshooter.ui.Bar;
@@ -95,7 +96,7 @@ public class GameScreen implements Screen {
         float height = assetManager.getEnemy(id).getRegionHeight();
 
         Entity enemy = new Entity();
-        enemy.add(new EnemyComponent(200));
+        enemy.add(new HazardComponent(200));
         enemy.add(new PositionComponent(SpaceShooter.SCREEN_WIDTH + 10, MathUtils.floor(MathUtils.random(10, SpaceShooter.SCREEN_HEIGHT - height))));
         enemy.add(new SizeComponent(MathUtils.floor(width) - 10, MathUtils.floor(height) - 10));
 
@@ -129,7 +130,7 @@ public class GameScreen implements Screen {
         Entity asteroid = new Entity();
         asteroid.add(new PositionComponent(SpaceShooter.SCREEN_WIDTH + 10, MathUtils.floor(MathUtils.random(10, SpaceShooter.SCREEN_HEIGHT - height))));
         asteroid.add(new SizeComponent(MathUtils.floor(width), MathUtils.floor(height)));
-        asteroid.add(new AsteroidsComponent(200));
+        asteroid.add(new HazardComponent(200));
         TextureComponent textureComponent = new TextureComponent();
         textureComponent.region = assetManager.getAsteroid(id);
         asteroid.add(textureComponent);
@@ -156,28 +157,9 @@ public class GameScreen implements Screen {
         engine.addSystem(new PlayerControlSystem(keyboardController, audioManager));
         engine.addSystem(new LaserSystem());
         engine.addSystem(new CollisionSystem());
-        AsteroidsSystem asteroidsSystem = new AsteroidsSystem();
-        engine.addSystem(asteroidsSystem);
-        engine.addSystem(new EnemySystem());
+        engine.addSystem(new HazardSystem());
         createPlayer();
-        engine.addEntityListener(Family.all(AsteroidsComponent.class).get(), new EntityListener() {
-            @Override
-            public void entityAdded(final Entity entity) {
-
-            }
-
-            @Override
-            public void entityRemoved(final Entity entity) {
-                if (entity.getComponent(AttributesComponent.class).isDead()) {
-                    score.add(1);
-                    audioManager.playExplosion();
-                }
-                PositionComponent position = entity.getComponent(PositionComponent.class);
-                effect.setPosition(position.x, position.y);
-                effect.start();
-            }
-        });
-        engine.addEntityListener(Family.all(EnemyComponent.class).get(), new EntityListener() {
+        engine.addEntityListener(Family.all(HazardComponent.class).get(), new EntityListener() {
             @Override
             public void entityAdded(final Entity entity) {
 

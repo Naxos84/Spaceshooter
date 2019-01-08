@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import io.github.naxos84.spaceshooter.Families;
 import io.github.naxos84.spaceshooter.SpaceShooter;
 import io.github.naxos84.spaceshooter.components.*;
 import io.github.naxos84.spaceshooter.controller.KeyboardController;
@@ -16,16 +17,16 @@ import io.github.naxos84.spaceshooter.manager.AudioManager;
 
 public class PlayerControlSystem extends IteratingSystem {
 
+    private final KeyboardController keyboardController;
+    private final AudioManager audioManager;
     private ComponentMapper<PositionComponent> positionMapper;
     private ComponentMapper<SizeComponent> sizeMapper;
     private ComponentMapper<AttributesComponent> playerMapper;
-    private final KeyboardController keyboardController;
     private float rateOfFire;
     private long lastLaserSpawn;
-    private final AudioManager audioManager;
 
     public PlayerControlSystem(final KeyboardController keyboardController, final AudioManager audioManager) {
-        super(Family.all(PositionComponent.class, SizeComponent.class, AttributesComponent.class).exclude(AsteroidsComponent.class, EnemyComponent.class, LaserComponent.class).get());
+        super(Families.getPlayer());
         this.keyboardController = keyboardController;
         this.audioManager = audioManager;
 
@@ -56,7 +57,7 @@ public class PlayerControlSystem extends IteratingSystem {
             position.x = MathUtils.clamp(position.x, 0, SpaceShooter.SCREEN_WIDTH - 64);
             position.y = MathUtils.clamp(position.y, 0, SpaceShooter.SCREEN_HEIGHT - 64);
             if (keyboardController.isSpacePressed()) {
-                if (TimeUtils.millis() - lastLaserSpawn >  1000 / rateOfFire && playerMapper.get(entity).hasEnergy(10)) {
+                if (TimeUtils.millis() - lastLaserSpawn > 1000 / rateOfFire && playerMapper.get(entity).hasEnergy(10)) {
                     Entity laser = new Entity();
                     SizeComponent size = sizeMapper.get(entity);
                     PositionComponent positionComponent = new PositionComponent(position.x + size.getWidth(), position.y + size.getHeight() / 2 + 3);

@@ -1,15 +1,8 @@
 package io.github.naxos84.spaceshooter;
 
-import com.artemis.WorldConfiguration;
-import com.artemis.WorldConfigurationBuilder;
-import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -17,7 +10,6 @@ import com.badlogic.gdx.utils.I18NBundle;
 import io.github.naxos84.spaceshooter.manager.AudioManager;
 import io.github.naxos84.spaceshooter.manager.ScreenManager;
 import io.github.naxos84.spaceshooter.manager.SpaceshooterAssetManager;
-import io.github.naxos84.spaceshooter.screen.MainMenuScreen;
 
 import java.util.Locale;
 
@@ -25,14 +17,13 @@ public class SpaceShooter extends Game {
 
     public static final int SCREEN_WIDTH = 800;
     public static final int SCREEN_HEIGHT = 600;
-
+    private final boolean debugMode;
     public SpriteBatch batch;
     public BitmapFont font;
     public ShapeRenderer shapeRenderer;
-    private final boolean debugMode;
+    public I18NBundle bundle;
     private Locale locale;
     private FileHandle baseFileHandle;
-    public I18NBundle bundle;
     private GamePreferences gamePreferences;
 
     private SpaceshooterAssetManager assetManager = new SpaceshooterAssetManager();
@@ -69,7 +60,6 @@ public class SpaceShooter extends Game {
         this.setScreen(screenManager.getScreen(ScreenManager.LOADING));
 
     }
-
 
 
     @Override

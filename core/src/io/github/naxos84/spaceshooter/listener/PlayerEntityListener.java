@@ -8,14 +8,14 @@ public class PlayerEntityListener implements EntityListener {
     @Override
     public void entityAdded(final Entity entity) {
         if (entity instanceof Ship) {
-            playerAdded((Ship)entity);
+            playerAdded((Ship) entity);
         }
     }
 
     @Override
     public void entityRemoved(final Entity entity) {
         if (entity instanceof Ship) {
-            playerRemoved((Ship)entity);
+            playerRemoved((Ship) entity);
         }
     }
 

@@ -1,11 +1,17 @@
 package io.github.naxos84.spaceshooter.systems;
 
-import com.badlogic.ashley.core.*;
+import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import io.github.naxos84.spaceshooter.Families;
-import io.github.naxos84.spaceshooter.components.*;
+import io.github.naxos84.spaceshooter.components.AttributesComponent;
+import io.github.naxos84.spaceshooter.components.CollisionComponent;
+import io.github.naxos84.spaceshooter.components.PositionComponent;
+import io.github.naxos84.spaceshooter.components.SizeComponent;
 
 
 public class CollisionSystem extends EntitySystem {
@@ -13,8 +19,7 @@ public class CollisionSystem extends EntitySystem {
     private Engine engine;
 
     private ImmutableArray<Entity> players;
-    private ImmutableArray<Entity> asteroids;
-    private ImmutableArray<Entity> enemies;
+    private ImmutableArray<Entity> hazards;
     private ImmutableArray<Entity> lasers;
 
     private ComponentMapper<SizeComponent> sizeMapper;
@@ -31,8 +36,7 @@ public class CollisionSystem extends EntitySystem {
     public void addedToEngine(final Engine engine) {
         this.engine = engine;
         players = engine.getEntitiesFor(Families.getPlayer());
-        asteroids = engine.getEntitiesFor(Families.getAsteroid());
-        enemies = engine.getEntitiesFor(Families.getEnemy());
+        hazards = engine.getEntitiesFor(Families.getHazards());
         lasers = engine.getEntitiesFor(Families.getLaser());
     }
 
@@ -41,28 +45,16 @@ public class CollisionSystem extends EntitySystem {
         for (Entity player : players) {
             SizeComponent playerSize = sizeMapper.get(player);
             PositionComponent playerPosition = positionMapper.get(player);
-            Rectangle playerRectangle = new Rectangle(playerPosition.x, playerPosition.y,  playerSize.getWidth(), playerSize.getHeight());
-            for (Entity asteroid : asteroids) { //all asteroids
+            Rectangle playerRectangle = new Rectangle(playerPosition.x, playerPosition.y, playerSize.getWidth(), playerSize.getHeight());
+            for (Entity asteroid : hazards) { //all hazards
                 SizeComponent asteroidSize = sizeMapper.get(asteroid);
                 PositionComponent asteroidPosition = positionMapper.get(asteroid);
                 Rectangle asteroidRectangle = new Rectangle(asteroidPosition.x, asteroidPosition.y, asteroidSize.getWidth(), asteroidSize.getHeight());
                 if (playerRectangle.overlaps(asteroidRectangle)) {
                     collisionMapper.get(player).handleCollision(asteroid);
                     if (asteroid.getComponent(AttributesComponent.class).isDead()) {
-                        Gdx.app.log(this.getClass().getName(), "Asteroid died by collision with player.");
+                        Gdx.app.log(this.getClass().getName(), "Hazard died by collision with player.");
                         engine.removeEntity(asteroid);
-                    }
-                }
-            }
-            for (Entity enemy : enemies) {
-                SizeComponent enemySize = sizeMapper.get(enemy);
-                PositionComponent enemyPosition = positionMapper.get(enemy);
-                Rectangle enemyRectangle = new Rectangle(enemyPosition.x, enemyPosition.y, enemySize.getWidth(), enemySize.getHeight());
-                if (playerRectangle.overlaps(enemyRectangle)) {
-                    collisionMapper.get(player).handleCollision(enemy);
-                    if (enemy.getComponent(AttributesComponent.class).isDead()) {
-                        Gdx.app.log(this.getClass().getName(), "Enemy died by collision with player.");
-                        engine.removeEntity(enemy);
                     }
                 }
             }
@@ -73,34 +65,19 @@ public class CollisionSystem extends EntitySystem {
         for (Entity laser : lasers) {
             SizeComponent playerSize = sizeMapper.get(laser);
             PositionComponent playerPosition = positionMapper.get(laser);
-            Rectangle playerRectangle = new Rectangle(playerPosition.x, playerPosition.y,  playerSize.getWidth(), playerSize.getHeight());
-            for (Entity asteroid : asteroids) { //all asteroids
-                SizeComponent asteroidSize = sizeMapper.get(asteroid);
-                PositionComponent asteroidPosition = positionMapper.get(asteroid);
+            Rectangle playerRectangle = new Rectangle(playerPosition.x, playerPosition.y, playerSize.getWidth(), playerSize.getHeight());
+            for (Entity hazard : hazards) { //all hazards
+                SizeComponent asteroidSize = sizeMapper.get(hazard);
+                PositionComponent asteroidPosition = positionMapper.get(hazard);
                 Rectangle asteroidRectangle = new Rectangle(asteroidPosition.x, asteroidPosition.y, asteroidSize.getWidth(), asteroidSize.getHeight());
                 if (playerRectangle.overlaps(asteroidRectangle)) {
-                    collisionMapper.get(laser).handleCollision(asteroid);
-                    collisionMapper.get(asteroid).handleCollision(laser);
+                    collisionMapper.get(laser).handleCollision(hazard);
+                    collisionMapper.get(hazard).handleCollision(laser);
                     if (laser.getComponent(AttributesComponent.class).isDead()) {
                         engine.removeEntity(laser);
                     }
-                    if (asteroid.getComponent(AttributesComponent.class).isDead()) {
-                        engine.removeEntity(laser);
-                    }
-                }
-            }
-            for (Entity enemy : enemies) {
-                SizeComponent enemySize = sizeMapper.get(enemy);
-                PositionComponent enemyPosition = positionMapper.get(enemy);
-                Rectangle enemyRectangle = new Rectangle(enemyPosition.x, enemyPosition.y, enemySize.getWidth(), enemySize.getHeight());
-                if (playerRectangle.overlaps(enemyRectangle)) {
-                    collisionMapper.get(laser).handleCollision(enemy);
-                    collisionMapper.get(enemy).handleCollision(laser);
-                    if (laser.getComponent(AttributesComponent.class).isDead()) {
-                        engine.removeEntity(laser);
-                    }
-                    if (enemy.getComponent(AttributesComponent.class).isDead()) {
-                        engine.removeEntity(laser);
+                    if (hazard.getComponent(AttributesComponent.class).isDead()) {
+                        engine.removeEntity(hazard);
                     }
                 }
             }

@@ -6,9 +6,8 @@ import com.badlogic.gdx.math.MathUtils;
 public class AttributesComponent implements Component {
 
     private final int maxHealth;
-    private int health;
-
     private final int maxEnergy;
+    private int health;
     private int energy;
 
     private float energyTimer;
@@ -47,9 +46,9 @@ public class AttributesComponent implements Component {
     public void updateEnergy(final float deltaTime) {
         energyTimer += deltaTime;
         if (energyTimer >= .1f) {
-            energy +=5;
+            energy += 5;
             energy = MathUtils.clamp(energy, 0, maxEnergy);
-            energyTimer -=.1f;
+            energyTimer -= .1f;
         }
     }
 

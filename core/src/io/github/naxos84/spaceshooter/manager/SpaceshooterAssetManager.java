@@ -9,17 +9,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class SpaceshooterAssetManager {
 
-    private final AssetManager manager = new AssetManager();
-
     private static final String SHIP_TEXTURE_PATH = "images/player/playerShip1_blue.png";
     private static final String LASER_TEXTURE_PATH = "images/lasers/laserBlue01.png";
-
     private static final String LASER_SOUND_PATH = "audio/laser5.ogg";
     private static final String ASTEROID_EXPLOSION_SOUND_PATH = "audio/explosion_asteroid.ogg";
-
     private static final String MENU_MUSIC_PATH = "audio/menu_screen_loop.ogg";
     private static final String GAME_MUSIC_PATH = "audio/game_background_loop.ogg";
-
     private static final String ASTEROIDS_ATLAS_PATH = "textures/asteroids.atlas";
     private static final String BARS_ATLAS_PATH = "textures/bars.atlas";
     private static final String ENEMIES_ATLAS_PATH = "textures/enemies.atlas";
@@ -29,8 +24,8 @@ public class SpaceshooterAssetManager {
     private static final String ENERGY_BAR_LEFT_REGION = "barHorizontal_blue_left";
     private static final String ENERGY_BAR_MID_REGION = "barHorizontal_blue_mid";
     private static final String ENERGY_BAR_RIGHT_REGION = "barHorizontal_blue_right";
-
     private static final String SKIN_PATH = "skin/kenney/kenney-test2.json";
+    private final AssetManager manager = new AssetManager();
 
     public void loadTextures() {
         manager.load(SHIP_TEXTURE_PATH, Texture.class);
