@@ -6,8 +6,8 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import io.github.naxos84.spaceshooter.SpaceShooter;
-import io.github.naxos84.spaceshooter.components.HazardComponent;
 import io.github.naxos84.spaceshooter.components.CollisionComponent;
+import io.github.naxos84.spaceshooter.components.HazardComponent;
 import io.github.naxos84.spaceshooter.components.PositionComponent;
 import io.github.naxos84.spaceshooter.components.SizeComponent;
 

@@ -1,6 +1,5 @@
 package io.github.naxos84.spaceshooter.screen;
 
-import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
