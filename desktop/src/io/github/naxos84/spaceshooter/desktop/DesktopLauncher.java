@@ -23,6 +23,6 @@ public class DesktopLauncher {
         config.forceExit = false;
         config.preferencesDirectory = "AppData/Local/Spaceshooter - Endless Conflict/preferences";
 
-        Application app = new LwjglApplication(new SpaceShooter(debugMode), config);
+        new LwjglApplication(new SpaceShooter(debugMode), config);
     }
 }
