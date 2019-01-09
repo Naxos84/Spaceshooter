@@ -73,6 +73,7 @@ public class SpaceShooter extends Game {
         this.screen.dispose();
         assetManager.dispose();
         audioManager.dispose();
+        batch.dispose();
     }
 
     public void changeScreen(int index) {

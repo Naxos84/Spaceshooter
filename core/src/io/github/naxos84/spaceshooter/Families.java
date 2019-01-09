@@ -9,7 +9,7 @@ public class Families {
     }
 
     public static Family getPlayer() {
-        return Family.all(AttributesComponent.class).exclude(HazardComponent.class, HazardComponent.class, LaserComponent.class).get();
+        return Family.all(AttributesComponent.class).exclude(HazardComponent.class, LaserComponent.class).get();
     }
 
     public static Family getHazards() {
