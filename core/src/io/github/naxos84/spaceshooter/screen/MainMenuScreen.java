@@ -28,7 +28,6 @@ public class MainMenuScreen implements Screen {
     private TextButton startGame;
     private TextButton preferences;
     private TextButton exitGame;
-    private final AudioManager audioManager;
 
     public MainMenuScreen(final SpaceShooter game, final boolean debugMode) {
         this.game = game;
