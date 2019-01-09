@@ -38,6 +38,7 @@ public class GameScreen implements Screen {
     private final AudioManager audioManager;
     private long lastAsteroidSpawn;
     private ParticleEffect effect;
+    private ParticleEffect laserExplosion;
     private Score score;
     private GameOver gameOver;
 
@@ -144,7 +145,10 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         effect = new ParticleEffect();
-        effect.load(Gdx.files.internal("images/particles/meteor_explosion.p"), Gdx.files.internal("images/meteors"));
+        effect.load(Gdx.files.internal("images/particles/meteor_explosion.p"), Gdx.files.internal("images/particles"));
+
+        laserExplosion = new ParticleEffect();
+        laserExplosion.load(Gdx.files.internal("images/particles/laser_explosion.p"), Gdx.files.internal("images/particles"));
         score = new Score();
         audioManager.playGameMusic();
         Gdx.input.setInputProcessor(keyboardController);
@@ -187,6 +191,20 @@ public class GameScreen implements Screen {
                 gameOver.show();
             }
         });
+        engine.addEntityListener(Families.getLaser(), new EntityListener() {
+
+            @Override
+            public void entityAdded(final Entity entity) {
+
+            }
+
+            @Override
+            public void entityRemoved(final Entity entity) {
+                PositionComponent position = entity.getComponent(PositionComponent.class);
+                laserExplosion.setPosition(position.x, position.y);
+                laserExplosion.start();
+            }
+        });
 
         healthBar = new Bar(assetManager.getHealthBarLeft(), assetManager.getHealthBarMid(), assetManager.getHealthBarRight(), SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.SCREEN_HEIGHT - 40);
         energyBar = new Bar(assetManager.getEnergyBarLeft(), assetManager.getEnergyBarMid(), assetManager.getEnergyBarRight(), SpaceShooter.SCREEN_WIDTH - 220, SpaceShooter.SCREEN_HEIGHT - 24);
@@ -219,6 +237,7 @@ public class GameScreen implements Screen {
         game.batch.begin();
         score.render(game.batch, game.bundle);
         effect.draw(game.batch, delta);
+        laserExplosion.draw(game.batch, delta);
 
         ImmutableArray<Entity> players = engine.getEntitiesFor(Families.getPlayer());
         if (players.size() > 0) {
@@ -281,5 +300,6 @@ public class GameScreen implements Screen {
     public void dispose() {
         assetManager.dispose();
         effect.dispose();
+        laserExplosion.dispose();
     }
 }
