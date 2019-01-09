@@ -6,12 +6,12 @@ import com.badlogic.gdx.math.Rectangle;
 public class Enemy {
 
 
+    private final int id;
     private int rotation;
     private float speed = 200;
     private Rectangle rect;
     private float currentHealth = 0;
     private float maxHealth = 0;
-    private final int id;
 
     public Enemy(final int id, final float x, final float y, final float width, final float height, final int rotation) {
         this.rect = new Rectangle(x, y, width, height);

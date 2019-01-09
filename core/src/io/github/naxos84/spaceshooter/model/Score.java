@@ -29,6 +29,6 @@ public class Score {
     }
 
     public void render(final SpriteBatch batch, final I18NBundle bundle) {
-        font.draw(batch, bundle.get("SCORE") + ": " + String.valueOf(value), 10, SpaceShooter.HEIGHT - 10);
+        font.draw(batch, bundle.format("SCORE", value), 10, SpaceShooter.SCREEN_HEIGHT - 10);
     }
 }

@@ -2,16 +2,9 @@ package io.github.naxos84.spaceshooter.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.naxos84.spaceshooter.SpaceShooter;
 import io.github.naxos84.spaceshooter.manager.ScreenManager;
 
@@ -71,6 +64,8 @@ public class LoadingScreen implements Screen {
                 case FINISHED:
                     currentText = game.bundle.get("KEY_FINISHED_LOADING");
                     break;
+                default:
+                    currentText = game.bundle.get("KEY_NOT_FOUND");
             }
             if (currentLoadingStage > 5) {
                 countDown -= delta;  // timer to stay on loading screen for short preiod once done loading

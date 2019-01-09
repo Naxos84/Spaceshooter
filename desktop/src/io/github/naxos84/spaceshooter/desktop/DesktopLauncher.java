@@ -1,5 +1,6 @@
 package io.github.naxos84.spaceshooter.desktop;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
@@ -13,10 +14,14 @@ public class DesktopLauncher {
         }
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+        config.title = "Spaceshooter - Endless Conflict";
         config.height = 600;
         config.width = 800;
-        //config.preferencesDirectory = "spaceshooter/preferences";
-        //config.preferencesFileType = Files.FileType.External;
+        config.addIcon("icons/gameicon_128x128.png", Files.FileType.Internal);
+        config.addIcon("icons/gameicon_32x32.png", Files.FileType.Internal);
+        config.addIcon("icons/gameicon_16x16.png", Files.FileType.Internal);
+        config.forceExit = false;
+        config.preferencesDirectory = "AppData/Local/Spaceshooter - Endless Conflict/preferences";
 
         new LwjglApplication(new SpaceShooter(debugMode), config);
     }

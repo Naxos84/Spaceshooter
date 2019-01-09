@@ -36,11 +36,15 @@ public class ScreenManager {
     }
 
     public Screen getScreen(final int index) {
-        switch(index) {
-            case MENU: return menuScreen;
-            case PREFERENCES: return preferencesScreen;
-            case GAME: return gameScreen;
-            case LOADING: return loadingScreen;
+        switch (index) {
+            case MENU:
+                return menuScreen;
+            case PREFERENCES:
+                return preferencesScreen;
+            case GAME:
+                return gameScreen;
+            case LOADING:
+                return loadingScreen;
             default:
                 throw new UnsupportedScreenException("Screen with index " + index + "does not exist");
         }

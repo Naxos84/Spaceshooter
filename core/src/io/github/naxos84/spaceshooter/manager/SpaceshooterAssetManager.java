@@ -9,53 +9,44 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class SpaceshooterAssetManager {
 
+    private static final String SHIP_TEXTURE_PATH = "images/player/playerShip1_blue.png";
+    private static final String LASER_TEXTURE_PATH = "images/lasers/laserBlue01.png";
+    private static final String LASER_SOUND_PATH = "audio/laser5.ogg";
+    private static final String ASTEROID_EXPLOSION_SOUND_PATH = "audio/explosion_asteroid.ogg";
+    private static final String MENU_MUSIC_PATH = "audio/menu_screen_loop.ogg";
+    private static final String GAME_MUSIC_PATH = "audio/game_background_loop.ogg";
+    private static final String ASTEROIDS_ATLAS_PATH = "textures/asteroids.atlas";
+    private static final String BARS_ATLAS_PATH = "textures/bars.atlas";
+    private static final String ENEMIES_ATLAS_PATH = "textures/enemies.atlas";
+    private static final String HEALTH_BAR_LEFT_REGION = "barHorizontal_red_left";
+    private static final String HEALTH_BAR_MID_REGION = "barHorizontal_red_mid";
+    private static final String HEALTH_BAR_RIGHT_REGION = "barHorizontal_red_right";
+    private static final String ENERGY_BAR_LEFT_REGION = "barHorizontal_blue_left";
+    private static final String ENERGY_BAR_MID_REGION = "barHorizontal_blue_mid";
+    private static final String ENERGY_BAR_RIGHT_REGION = "barHorizontal_blue_right";
+    private static final String SKIN_PATH = "skin/kenney/kenney-test2.json";
     private final AssetManager manager = new AssetManager();
 
-    private final String shipTexturePath = "images/player/playerShip1_blue.png";
-    private final String laserTexturePath = "images/lasers/laserBlue01.png";
-
-    private final String laserSoundPath = "audio/laser5.ogg";
-    private final String asteroidExplosionSoundPath = "audio/explosion_asteroid.ogg";
-
-    private final String menuMusicPath = "audio/menu_screen_loop.ogg";
-    private final String gameMusicPath = "audio/game_background_loop.ogg";
-
-    private final String asteroidsAtlasPath = "textures/asteroids.atlas";
-    private final String barsAtlasPath = "textures/bars.atlas";
-    private final String enemiesAtlasPath = "textures/enemies.atlas";
-    private final String healthBarLeftRegion = "barHorizontal_red_left";
-    private final String healthBarMidRegion = "barHorizontal_red_mid";
-    private final String healthBarRightRegion = "barHorizontal_red_right";
-    private final String energyBarLeftRegion = "barHorizontal_blue_left";
-    private final String energyBarMidRegion = "barHorizontal_blue_mid";
-    private final String energyBarRightRegion = "barHorizontal_blue_right";
-
-    private final String skinPath = "skin/kenney/kenney-test2.json";
-
-    public void loadInitialAssets() {
-
-    }
-
     public void loadTextures() {
-        manager.load(shipTexturePath, Texture.class);
-        manager.load(laserTexturePath, Texture.class);
-        manager.load(asteroidsAtlasPath, TextureAtlas.class);
-        manager.load(barsAtlasPath, TextureAtlas.class);
-        manager.load(enemiesAtlasPath, TextureAtlas.class);
+        manager.load(SHIP_TEXTURE_PATH, Texture.class);
+        manager.load(LASER_TEXTURE_PATH, Texture.class);
+        manager.load(ASTEROIDS_ATLAS_PATH, TextureAtlas.class);
+        manager.load(BARS_ATLAS_PATH, TextureAtlas.class);
+        manager.load(ENEMIES_ATLAS_PATH, TextureAtlas.class);
     }
 
     public void loadSounds() {
-        manager.load(laserSoundPath, Sound.class);
-        manager.load(asteroidExplosionSoundPath, Sound.class);
+        manager.load(LASER_SOUND_PATH, Sound.class);
+        manager.load(ASTEROID_EXPLOSION_SOUND_PATH, Sound.class);
     }
 
     public void loadMusic() {
-        manager.load(menuMusicPath, Music.class);
-        manager.load(gameMusicPath, Music.class);
+        manager.load(MENU_MUSIC_PATH, Music.class);
+        manager.load(GAME_MUSIC_PATH, Music.class);
     }
 
     public void loadSkins() {
-        manager.load(skinPath, Skin.class);
+        manager.load(SKIN_PATH, Skin.class);
     }
 
     public void finishLoading() {
@@ -63,23 +54,23 @@ public class SpaceshooterAssetManager {
     }
 
     public Texture getShipTexture() {
-        return manager.get(shipTexturePath);
+        return manager.get(SHIP_TEXTURE_PATH);
     }
 
     public Texture getLaserTexture() {
-        return manager.get(laserTexturePath);
+        return manager.get(LASER_TEXTURE_PATH);
     }
 
     public Sound getLaserSound() {
-        return manager.get(laserSoundPath);
+        return manager.get(LASER_SOUND_PATH);
     }
 
     public Sound getAsteroidExplosion() {
-        return manager.get(asteroidExplosionSoundPath);
+        return manager.get(ASTEROID_EXPLOSION_SOUND_PATH);
     }
 
     public TextureAtlas getAsteroidsAtlas() {
-        return manager.get(asteroidsAtlasPath);
+        return manager.get(ASTEROIDS_ATLAS_PATH);
     }
 
     public TextureAtlas.AtlasRegion getAsteroid(final int index) {
@@ -91,35 +82,35 @@ public class SpaceshooterAssetManager {
     }
 
     public TextureAtlas getBarsAtlas() {
-        return manager.get(barsAtlasPath);
+        return manager.get(BARS_ATLAS_PATH);
     }
 
     public TextureAtlas.AtlasRegion getHealthBarLeft() {
-        return getBarsAtlas().findRegion(healthBarLeftRegion);
+        return getBarsAtlas().findRegion(HEALTH_BAR_LEFT_REGION);
     }
 
     public TextureAtlas.AtlasRegion getHealthBarMid() {
-        return getBarsAtlas().findRegion(healthBarMidRegion);
+        return getBarsAtlas().findRegion(HEALTH_BAR_MID_REGION);
     }
 
     public TextureAtlas.AtlasRegion getHealthBarRight() {
-        return getBarsAtlas().findRegion(healthBarRightRegion);
+        return getBarsAtlas().findRegion(HEALTH_BAR_RIGHT_REGION);
     }
 
     public TextureAtlas.AtlasRegion getEnergyBarLeft() {
-        return getBarsAtlas().findRegion(energyBarLeftRegion);
+        return getBarsAtlas().findRegion(ENERGY_BAR_LEFT_REGION);
     }
 
     public TextureAtlas.AtlasRegion getEnergyBarMid() {
-        return getBarsAtlas().findRegion(energyBarMidRegion);
+        return getBarsAtlas().findRegion(ENERGY_BAR_MID_REGION);
     }
 
     public TextureAtlas.AtlasRegion getEnergyBarRight() {
-        return getBarsAtlas().findRegion(energyBarRightRegion);
+        return getBarsAtlas().findRegion(ENERGY_BAR_RIGHT_REGION);
     }
 
     public TextureAtlas getEnemiesAtlas() {
-        return manager.get(enemiesAtlasPath);
+        return manager.get(ENEMIES_ATLAS_PATH);
     }
 
     public int getNumberOfEnemies() {
@@ -131,15 +122,15 @@ public class SpaceshooterAssetManager {
     }
 
     public Music getMenuMusic() {
-        return manager.get(menuMusicPath);
+        return manager.get(MENU_MUSIC_PATH);
     }
 
     public Music getGameMusic() {
-        return manager.get(gameMusicPath);
+        return manager.get(GAME_MUSIC_PATH);
     }
 
     public Skin getUiSkin() {
-        return manager.get(skinPath);
+        return manager.get(SKIN_PATH);
     }
 
     public boolean update() {

@@ -24,7 +24,7 @@ public class MainMenuScreen implements Screen {
     private final boolean debugMode;
 
     private final Stage stage;
-
+    private final AudioManager audioManager;
     private TextButton startGame;
     private TextButton preferences;
     private TextButton exitGame;
