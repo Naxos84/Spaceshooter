@@ -157,7 +157,7 @@ public class GameScreen implements Screen {
         camera.setToOrtho(false, SpaceShooter.SCREEN_WIDTH, SpaceShooter.SCREEN_HEIGHT);
 
         engine = new PooledEngine();
-        engine.addSystem(new RenderSystem(game.batch, game.shapeRenderer, camera, debugMode));
+        engine.addSystem(new RenderSystem(game.batch, game.shapeRenderer, camera, assetManager, debugMode));
         engine.addSystem(new PlayerControlSystem(keyboardController, audioManager));
         engine.addSystem(new LaserSystem());
         engine.addSystem(new CollisionSystem());

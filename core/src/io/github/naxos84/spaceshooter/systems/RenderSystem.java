@@ -4,14 +4,18 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
-import io.github.naxos84.spaceshooter.components.PositionComponent;
-import io.github.naxos84.spaceshooter.components.SizeComponent;
-import io.github.naxos84.spaceshooter.components.TextureComponent;
+import io.github.naxos84.spaceshooter.Families;
+import io.github.naxos84.spaceshooter.components.*;
+import io.github.naxos84.spaceshooter.manager.SpaceshooterAssetManager;
+import io.github.naxos84.spaceshooter.ui.Bar;
 
 public class RenderSystem extends IteratingSystem {
 
@@ -20,22 +24,26 @@ public class RenderSystem extends IteratingSystem {
     private ShapeRenderer shapeRenderer;
     private Array<Entity> renderQueue;
     private OrthographicCamera camera;
+    private SpaceshooterAssetManager assetManager;
 
     private ComponentMapper<TextureComponent> textureMapper;
     private ComponentMapper<PositionComponent> positionMapper;
+    private ComponentMapper<AttributesComponent> attributesMapper;
 
-    public RenderSystem(final SpriteBatch batch, final ShapeRenderer shapeRenderer, final OrthographicCamera camera, final boolean debug) {
+    public RenderSystem(final SpriteBatch batch, final ShapeRenderer shapeRenderer, final OrthographicCamera camera, SpaceshooterAssetManager assetManager, final boolean debug) {
         super(Family.all(PositionComponent.class, TextureComponent.class).get());
 
         this.debug = debug;
 
         textureMapper = ComponentMapper.getFor(TextureComponent.class);
         positionMapper = ComponentMapper.getFor(PositionComponent.class);
+        attributesMapper = ComponentMapper.getFor(AttributesComponent.class);
 
         renderQueue = new Array<>();
         this.batch = batch;
         this.shapeRenderer = shapeRenderer;
         this.camera = camera;
+        this.assetManager = assetManager;
     }
 
     @Override
@@ -59,21 +67,32 @@ public class RenderSystem extends IteratingSystem {
             TextureComponent texture = textureMapper.get(entity);
             PositionComponent position = positionMapper.get(entity);
             SizeComponent size = entity.getComponent(SizeComponent.class);
+            renderEntity(texture, position, size);
 
-            if (texture.region == null || position.isHidden) {
-                continue;
+            AttributesComponent attributes = attributesMapper.get(entity);
+            if (Families.getHazards().matches(entity) && attributes.getHealth() < attributes.getMaxHealth()) {
+                renderHealthBar(position, size, attributes);
             }
-
-            float width = texture.region.getRegionWidth();
-            float height = texture.region.getRegionHeight();
-
-            float originX = width / 2f;
-            float originY = height / 2f;
-
-            batch.draw(texture.region, position.x, position.y, originX, originY, size == null ? width : size.getWidth(), size == null ? height : size.getHeight(), 1, 1, 0f);
-
         }
         batch.end();
+    }
+
+    private void renderEntity(TextureComponent texture, PositionComponent position, SizeComponent size) {
+        if (texture.region == null || position.isHidden) {
+            Gdx.app.log(this.getClass().getName(), "Invalid entity component.");
+            return;
+        }
+        batch.draw(texture.region, position.x, position.y, 0, 0, size.getWidth(), size.getHeight(), 1, 1, 0f);
+    }
+
+    private void renderHealthBar(PositionComponent position, SizeComponent size, AttributesComponent attributes) {
+        if (position.isHidden) {
+            Gdx.app.log(this.getClass().getName(), "Hidden position");
+            return;
+        }
+            float healthWidth = attributes.getHealth() / attributes.getMaxHealth() * size.getWidth();
+            TextureAtlas.AtlasRegion healthBarTexture = assetManager.getHealthBarMid();
+            batch.draw(healthBarTexture, position.x, position.y + size.getHeight() + 2, healthWidth, 5);
     }
 
     private void renderDebug() {
@@ -86,13 +105,11 @@ public class RenderSystem extends IteratingSystem {
             SizeComponent size = entity.getComponent(SizeComponent.class);
 
             if (texture.region == null || position.isHidden) {
+                Gdx.app.log(this.getClass().getName(), "Invalid entity component for debug rendering.");
                 continue;
             }
 
-            float width = texture.region.getRegionWidth();
-            float height = texture.region.getRegionHeight();
-
-            shapeRenderer.rect(position.x, position.y, size == null ? width : size.getWidth(), size == null ? height : size.getHeight());
+            shapeRenderer.rect(position.x, position.y, size.getWidth(), size.getHeight());
 
         }
         shapeRenderer.end();

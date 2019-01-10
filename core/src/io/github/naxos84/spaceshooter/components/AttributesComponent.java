@@ -5,14 +5,14 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class AttributesComponent implements Component {
 
-    private final int maxHealth;
-    private final int maxEnergy;
-    private int health;
-    private int energy;
+    private final float maxHealth;
+    private final float maxEnergy;
+    private float health;
+    private float energy;
 
     private float energyTimer;
 
-    public AttributesComponent(final int health, final int energy, final int maxHealth, final int maxEnergy) {
+    public AttributesComponent(final float health, final float energy, final float maxHealth, final float maxEnergy) {
         this.health = health;
         this.maxHealth = maxHealth;
         this.maxEnergy = maxEnergy;
@@ -20,14 +20,14 @@ public class AttributesComponent implements Component {
     }
 
     public AttributesComponent(final int health) {
-        this(health, 0, 100, 100);
+        this(health, 0, health, 0);
     }
 
-    public void reduceHealth(final int health) {
+    public void reduceHealth(final float health) {
         this.health -= health;
     }
 
-    public void reduceEnergy(final int energy) {
+    public void reduceEnergy(final float energy) {
         this.energy -= energy;
     }
 
@@ -35,11 +35,11 @@ public class AttributesComponent implements Component {
         return health <= 0;
     }
 
-    public int getHealth() {
+    public float getHealth() {
         return health;
     }
 
-    public int getMaxHealth() {
+    public float getMaxHealth() {
         return maxHealth;
     }
 
@@ -52,11 +52,11 @@ public class AttributesComponent implements Component {
         }
     }
 
-    public boolean hasEnergy(final int energy) {
+    public boolean hasEnergy(final float energy) {
         return this.energy >= energy;
     }
 
-    public int getEnergy() {
+    public float getEnergy() {
         return energy;
     }
 }
